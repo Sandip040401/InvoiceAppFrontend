@@ -1,0 +1,41 @@
+.add-bill-container {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.table-responsive {
+  margin-top: 20px;
+}
+
+.form-control-sm {
+  font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+  height: auto;
+}
+
+.total-input {
+  background-color: #e9ecef;
+  text-align: right;
+}
+
+.heading {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.np {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.np label {
+  margin-right: 10px;
+}
+
+.btn-sm {
+  font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+  height: auto;
+}

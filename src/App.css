@@ -1,0 +1,7 @@
+*{
+    margin: 0;
+    padding: 0;
+    background-color: var(--body_background);
+    color: var(--body_color);
+}
+
