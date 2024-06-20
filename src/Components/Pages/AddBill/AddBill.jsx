@@ -31,7 +31,7 @@ function AddBill() {
     useEffect(() => {
         fetchPartyNames();
     }, [user]);
-    
+
     useEffect(() => {
         if (message) {
             const timer = setTimeout(() => {
@@ -288,7 +288,7 @@ function AddBill() {
                         <div className="row mt-3">
                             <div className="col-md-12">
                                 <label className="form-label">Total N/P:</label>
-                                <input type="number" className="form-control" value={totalNP} onChange={(e) => setTotalNP(e.target.value)} />
+                                <input type="number" className="form-control" style={{width:'130px'}} value={totalNP} onChange={(e) => setTotalNP(e.target.value)} />
                             </div>
                         </div>
                         <div className="d-flex justify-content-center">
