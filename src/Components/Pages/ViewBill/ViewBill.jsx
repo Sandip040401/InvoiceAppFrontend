@@ -19,6 +19,7 @@ function ViewBill() {
     const [totalS_TDS, setTotalS_TDS] = useState(0);
     const [totalATD, setTotalATD] = useState(0);
     const [totalAllTotals, setTotalAllTotals] = useState(0);
+    const [totalNP, setTotalNP] = useState(0); // New state for totalNP
     const [showDateRange, setShowDateRange] = useState(false);
     const backendUrl = import.meta.env.VITE_BASE_URL;
 
@@ -40,10 +41,12 @@ function ViewBill() {
                 throw new Error('Failed to fetch data');
             }
             const data = await response.json();
+            let totalNP = data[0].totalNP;
+            setTotalNP(totalNP); // Set totalNP state
             setBills(data);
             setShowDateRange(true);
 
-            // Calculate total payment and total of all totals
+            // Calculate totals and totalNP
             let totalPayment = 0;
             let totalPWT = 0;
             let totalCASH = 0;
@@ -55,6 +58,7 @@ function ViewBill() {
             let totalS_TDS = 0;
             let totalATD = 0;
             let totalAllTotals = 0;
+
             data.forEach(bill => {
                 totalPayment += (bill.payment);
                 totalPWT += (bill.PWT);
@@ -67,7 +71,10 @@ function ViewBill() {
                 totalS_TDS += (bill.S_TDS);
                 totalATD += (bill.ATD);
                 totalAllTotals += (bill.total);
+
             });
+
+            // Set states
             setTotalPayment(totalPayment);
             setTotalPWT(totalPWT);
             setTotalCASH(totalCASH);
@@ -134,7 +141,7 @@ function ViewBill() {
 
         // Add date range row
         worksheet.addRow(['Date:', `${startDate} to ${endDate}`]);
-        worksheet.addRow(['Total N/P:', `${totalN_P}`]);
+        worksheet.addRow(['Total N/P:', `${totalNP}`]); // Add totalNP row
 
         // Write to file
         workbook.xlsx.writeBuffer().then(buffer => {
@@ -222,39 +229,43 @@ function ViewBill() {
                                     <td>{bill.payment}</td>
                                     <td>{bill.PWT}</td>
                                     <td>{bill.CASH}</td>
-                                    <td>{bill.BANK}</td>
-                                    <td>{bill.DUE}</td>
-                                    <td>{bill.N_P}</td>
-                                    <td>{bill.TCS}</td>
-                                    <td>{bill.TDS}</td>
-                                    <td>{bill.S_TDS}</td>
-                                    <td>{bill.ATD}</td>
-                                    <td>{bill.total}</td>
-                                </tr>
-                            ))}
-                            <tr>
-                                <td>Total</td>
-                                <td></td>
-                                <td>{totalPayment}</td>
-                                <td>{totalPWT}</td>
-                                <td>{totalCASH}</td>
-                                <td>{totalBANK}</td>
-                                <td>{totalDUE}</td>
-                                <td>{totalN_P}</td>
-                                <td>{totalTCS}</td>
-                                <td>{totalTDS}</td>
-                                <td>{totalS_TDS}</td>
-                                <td>{totalATD}</td>
-                                <td>{totalAllTotals}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div style={{height:'30px'}}>
-        </div>
-        </>
-    )
+<td>{bill.BANK}</td>
+<td>{bill.DUE}</td>
+<td>{bill.N_P}</td>
+<td>{bill.TCS}</td>
+<td>{bill.TDS}</td>
+<td>{bill.S_TDS}</td>
+<td>{bill.ATD}</td>
+<td>{bill.total}</td>
+</tr>
+))}
+<tr>
+<td>Total</td>
+<td></td>
+<td>{totalPayment}</td>
+<td>{totalPWT}</td>
+<td>{totalCASH}</td>
+<td>{totalBANK}</td>
+<td>{totalDUE}</td>
+<td>{totalN_P}</td>
+<td>{totalTCS}</td>
+<td>{totalTDS}</td>
+<td>{totalS_TDS}</td>
+<td>{totalATD}</td>
+<td>{totalAllTotals}</td>
+</tr>
+<tr>
+<td>Total N/P</td>
+<td>{totalNP}</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div style={{height:'30px'}}>
+</div>
+</>
+)
 }
 
 export default ViewBill;

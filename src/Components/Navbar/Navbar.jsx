@@ -1,11 +1,31 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import './Navbar.css';
 import { useAuth0 } from "@auth0/auth0-react";
 
 function Navbar() {
     const { user, logout } = useAuth0();
-
+    const backendUrl = import.meta.env.VITE_BASE_URL;
+    useEffect(() => {
+        handleSubmit();
+    });
+    const handleSubmit = async (e) => {
+      try {
+          const response = await fetch(`${backendUrl}/api/user`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({user}) // Include totalNP in the submission
+          });
+  
+          if (!response.ok) {
+              throw new Error('user already exist');
+          }
+      } catch (error) {
+          console.log(error);
+      }
+  };
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
             <div className="container-fluid">

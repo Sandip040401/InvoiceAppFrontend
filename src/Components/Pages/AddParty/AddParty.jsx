@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
 
@@ -9,6 +9,15 @@ function AddParty() {
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const backendUrl = import.meta.env.VITE_BASE_URL;
+
+  useEffect(() => {
+    if (message) {
+        const timer = setTimeout(() => {
+            setMessage('');
+        }, 5000);
+        return () => clearTimeout(timer);
+    }
+}, [message]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -105,12 +114,19 @@ function AddParty() {
           </button>
         </form>
         {message && (
-          <div
-            className={`alert mt-4 ${isError ? "alert-danger" : "alert-success"}`}
-          >
-            {message}
-          </div>
-        )}
+                    <div className={`mt-3 alert ${isError ? 'alert-danger' : 'alert-success'}`} role="alert" style={{
+                        position: 'fixed',
+                        top: '20px',  // Adjust as necessary to position from top
+                        right: '20px', // Adjust as necessary to position from right
+                        width: '300px', // Adjust the width of the alert
+                        zIndex: '1000', // Ensure the alert is above other content
+                        padding: '10px', // Adjust padding for content spacing
+                        textAlign: 'center', // Center align the text
+                        transform: 'translateY(0)' // Ensure alert stays at the top of the viewport
+                    }}>
+                        {message}
+                    </div>
+                )}
       </div>
     </div>
   );
