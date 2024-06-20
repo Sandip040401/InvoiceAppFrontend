@@ -24,12 +24,23 @@ function AddBill() {
         ATD: 0,
         Total: 0
     });
+    const [totalNP, setTotalNP] = useState(0); // New state variable for Total N/P input
 
     const backendUrl = import.meta.env.VITE_BASE_URL;
 
     useEffect(() => {
         fetchPartyNames();
     }, [user]);
+    
+    useEffect(() => {
+        if (message) {
+            const timer = setTimeout(() => {
+                setMessage('');
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [message]);
+
 
     useEffect(() => {
         // Initialize Bootstrap tooltip
@@ -58,9 +69,7 @@ function AddBill() {
                     throw new Error('No codes or party names data received');
                 }
 
-                // const sortedPartyNames = partyNames.sort((a, b) => a.localeCompare(b));
                 const sortedPartyNames = partyNames;
-                // const sortedCodes = codes.sort((a, b) => a.localeCompare(b));
                 const sortedCodes = codes;
 
                 setPartyNames(sortedPartyNames);
@@ -153,15 +162,15 @@ function AddBill() {
                 TCS: data.TCS,
                 TDS: data.TDS,
                 S_TDS: data.S_TDS,
-                ATD: data.ATD,
-                email: user.email
+                ATD: data.ATD
             }));
+            const email = user.email;
             const response = await fetch(`${backendUrl}/api/bills`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(bills)
+                body: JSON.stringify({ bills, totalNP, email }) // Include totalNP in the submission
             });
 
             if (!response.ok) {
@@ -188,10 +197,10 @@ function AddBill() {
             nextIndex = currentIndex === inputs.length - 1 ? 0 : currentIndex + 1;
         } else if (e.key === "w" || e.key === "W") {
             e.preventDefault();
-            nextIndex = currentIndex < 11 ? 0 : currentIndex - 11;
+            nextIndex = currentIndex < 10 ? 0 : currentIndex - 10;
         } else if (e.key === "s" || e.key === "S") {
             e.preventDefault();
-            nextIndex = currentIndex + 11 >= inputs.length ? currentIndex % 11 : currentIndex + 11;
+            nextIndex = currentIndex + 10 >= inputs.length ? currentIndex % 10 : currentIndex + 10;
         }
 
         inputs[nextIndex].focus();
@@ -205,6 +214,11 @@ function AddBill() {
                     Add Weekly Bill
                     <i className="fas fa-info-circle" style={{color:'white',backgroundColor:"#0D6EFD"}} data-bs-toggle="tooltip" data-bs-placement="top" title="Use W, A, S, D to move between the cells"></i>
                 </div>
+                {message && (
+                            <div className={`mt-3 alert ${isError ? 'alert-danger' : 'alert-success'}`} role="alert" style={{marginLeft:'77%',width:"300px"}}>
+                                {message}
+                            </div>
+                        )}
                 <div className="card-body">
                     <form onSubmit={handleSubmit}>
                         <div className="row mb-3">
@@ -228,7 +242,7 @@ function AddBill() {
                                         <th>CASH</th>
                                         <th>BANK</th>
                                         <th>DUE</th>
-                                        <th>N_P</th>
+                                        <th>N/P</th>
                                         <th>TCS</th>
                                         <th>TDS</th>
                                         <th>S_TDS</th>
@@ -240,24 +254,22 @@ function AddBill() {
                                     {formData.map((data, index) => (
                                         <tr key={index}>
                                             <td>{data.code}</td>
-                                            <td>{partyNames[index]}</td>
-                                            <td><input type="number" name="payment" className="form-control form-control-sm" value={data.payment} onChange={(e) => handleChange(index, e.target.name, e.target.value)} placeholder="0" onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" name="PWT" className="form-control form-control-sm" value={data.PWT} onChange={(e) => handleChange(index, e.target.name, e.target.value)} placeholder="0" onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" name="CASH" className="form-control form-control-sm" value={data.CASH} onChange={(e) => handleChange(index, e.target.name, e.target.value)} placeholder="0" onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" name="BANK" className="form-control form-control-sm" value={data.BANK} onChange={(e) => handleChange(index, e.target.name, e.target.value)} placeholder="0" onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" name="DUE" className="form-control form-control-sm" value={data.DUE} onChange={(e) => handleChange(index, e.target.name, e.target.value)} placeholder="0" onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" name="N_P" className="form-control form-control-sm" value={data.N_P} onChange={(e) => handleChange(index, e.target.name, e.target.value)} placeholder="0" onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" name="TCS" className="form-control form-control-sm" value={data.TCS} onChange={(e) => handleChange(index, e.target.name, e.target.value)} placeholder="0" onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" name="TDS" className="form-control form-control-sm" value={data.TDS} onChange={(e) => handleChange(index, e.target.name, e.target.value)} placeholder="0" onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" name="S_TDS" className="form-control form-control-sm" value={data.S_TDS} onChange={(e) => handleChange(index, e.target.name, e.target.value)} placeholder="0" onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" name="ATD" className="form-control form-control-sm" value={data.ATD} onChange={(e) => handleChange(index, e.target.name, e.target.value)} placeholder="0" onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="text" className="form-control form-control-sm" value={getTotal(data)} disabled /></td>
+                                            <td>{data.partyName}</td>
+                                            <td><input type="number" className="form-control" value={data.payment} onChange={(e) => handleChange(index, 'payment', e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                            <td><input type="number" className="form-control" value={data.PWT} onChange={(e) => handleChange(index, 'PWT', e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                            <td><input type="number" className="form-control" value={data.CASH} onChange={(e) => handleChange(index, 'CASH', e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                            <td><input type="number" className="form-control" value={data.BANK} onChange={(e) => handleChange(index, 'BANK', e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                            <td><input type="number" className="form-control" value={data.DUE} onChange={(e) => handleChange(index, 'DUE', e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                            <td><input type="number" className="form-control" value={data.N_P} onChange={(e) => handleChange(index, 'N_P', e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                            <td><input type="number" className="form-control" value={data.TCS} onChange={(e) => handleChange(index, 'TCS', e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                            <td><input type="number" className="form-control" value={data.TDS} onChange={(e) => handleChange(index, 'TDS', e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                            <td><input type="number" className="form-control" value={data.S_TDS} onChange={(e) => handleChange(index, 'S_TDS', e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                            <td><input type="number" className="form-control" value={data.ATD} onChange={(e) => handleChange(index, 'ATD', e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                            <td>{getTotal(data)}</td>
                                         </tr>
                                     ))}
-                                </tbody>
-                                <tfoot>
                                     <tr>
-                                        <td colSpan="2"><strong>Total</strong></td>
+                                        <td colSpan="2" className="text-right font-weight-bold">Total</td>
                                         <td>{columnTotals.payment.toFixed(2)}</td>
                                         <td>{columnTotals.PWT.toFixed(2)}</td>
                                         <td>{columnTotals.CASH.toFixed(2)}</td>
@@ -270,28 +282,24 @@ function AddBill() {
                                         <td>{columnTotals.ATD.toFixed(2)}</td>
                                         <td>{columnTotals.Total.toFixed(2)}</td>
                                     </tr>
-                                </tfoot>
+                                </tbody>
                             </table>
                         </div>
-                        <div className="row mb-3">
-                            <div className="col-md-6 d-flex">
+                        <div className="row mt-3">
+                            <div className="col-md-12">
                                 <label className="form-label">Total N/P:</label>
-                                <span style={{ marginLeft: '20px' }}>{columnTotals.N_P.toFixed(2)}</span>
+                                <input type="number" className="form-control" value={totalNP} onChange={(e) => setTotalNP(e.target.value)} />
                             </div>
                         </div>
-                        <div className="text-center">
-                            <button type="submit" className="btn btn-primary">Submit</button>
+                        <div className="d-flex justify-content-center">
+                            <button type="submit" className="btn btn-primary mt-3">Submit</button>
                         </div>
                     </form>
-                    {message && (
-                        <div className={`alert mt-3 ${isError ? "alert-danger" : "alert-success"}`} role="alert">
-                            {message}
-                        </div>
-                    )}
                 </div>
             </div>
         </div>
         <div style={{height:'100px'}}>
+
         </div>
         </>
     );

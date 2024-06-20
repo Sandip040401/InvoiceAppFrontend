@@ -19,6 +19,7 @@ import MainHome from './Components/MainPage/MainHome';
 import Features from './Components/MainPage/Features';
 import Documentation from './Components/MainPage/Documentation';
 import ContactUs from './Components/MainPage/ContactUs';
+import EditBill from './Components/Pages/EditBill/EditBill';
 
 function App() {
   const { isAuthenticated } = useAuth0();
@@ -49,6 +50,7 @@ function App() {
             <Route path="/add-weekly-bill" element={<AddBill />} />
             <Route path="/manage-party" element={<ManageParty />} />
             <Route path="/manage-bill" element={<ManageBill />} />
+            <Route path="/edit-weekly-bill" element={<EditBill />} />
           </Routes>
           <Footer />
         </>
