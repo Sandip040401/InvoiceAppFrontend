@@ -71,8 +71,10 @@ function ViewBill() {
                 totalS_TDS += (bill.S_TDS);
                 totalATD += (bill.ATD);
                 totalAllTotals += (bill.total);
-
             });
+
+            // Include totalNP in the totalPayment calculation
+            totalPayment += totalNP;
 
             // Set states
             setTotalPayment(totalPayment);
@@ -97,7 +99,7 @@ function ViewBill() {
         const worksheet = workbook.addWorksheet('Bills');
 
         // Add headers
-        worksheet.addRow(['Serial No', 'Code', 'P_Name', 'Payment', 'PWT', 'CASH', 'BANK', 'DUE', 'N_P', 'TCS', 'TDS', 'S_TDS', 'ATD', 'Total']);
+        worksheet.addRow(['Sl no', 'Code', 'PartyName', 'Payment', 'PWT', 'CASH', 'BANK', 'DUE', 'N_P', 'TCS', 'TDS', 'S_TDS', 'ATD', 'Total']);
 
         // Add data rows
         bills.forEach((bill, index) => {
@@ -118,6 +120,8 @@ function ViewBill() {
                 bill.total
             ]);
         });
+        worksheet.addRow(['']);
+        worksheet.addRow(['','','N/P:', totalNP]); // Add totalNP row
 
         // Add total row
         worksheet.addRow([
@@ -140,8 +144,7 @@ function ViewBill() {
         worksheet.addRow(['']);
 
         // Add date range row
-        worksheet.addRow(['Date:', `${startDate} to ${endDate}`]);
-        worksheet.addRow(['Total N/P:', `${totalNP}`]); // Add totalNP row
+        worksheet.addRow(['','','Date:', `${startDate} To ${endDate}`]);
 
         // Write to file
         workbook.xlsx.writeBuffer().then(buffer => {
@@ -163,28 +166,28 @@ function ViewBill() {
                         <form onSubmit={handleSubmit} className="card p-4">
                             <h4 className="mb-3 d-flex justify-content-center">Enter Weekly Date</h4>
                             <div className="d-flex justify-content-around">
-                            <div className="mb-3">
-                                <label htmlFor="start-date" className="form-label">Start Date:</label>
-                                <input 
-                                    type="date" 
-                                    id="start-date" 
-                                    className="form-control"
-                                    value={startDate} 
-                                    onChange={handleStartDateChange} 
-                                    placeholder="Start Date"
-                                />
-                            </div>
-                            <div className="mb-3">
-                                <label htmlFor="end-date" className="form-label">End Date:</label>
-                                <input 
-                                    type="date" 
-                                    id="end-date" 
-                                    className="form-control"
-                                    value={endDate} 
-                                    onChange={handleEndDateChange} 
-                                    placeholder="End Date"
-                                />
-                            </div>
+                                <div className="mb-3">
+                                    <label htmlFor="start-date" className="form-label">Start Date:</label>
+                                    <input 
+                                        type="date" 
+                                        id="start-date" 
+                                        className="form-control"
+                                        value={startDate} 
+                                        onChange={handleStartDateChange} 
+                                        placeholder="Start Date"
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label htmlFor="end-date" className="form-label">End Date:</label>
+                                    <input 
+                                        type="date" 
+                                        id="end-date" 
+                                        className="form-control"
+                                        value={endDate} 
+                                        onChange={handleEndDateChange} 
+                                        placeholder="End Date"
+                                    />
+                                </div>
                             </div>
                             <button type="submit" className="btn btn-primary">View Bill</button>
                         </form>
@@ -229,43 +232,42 @@ function ViewBill() {
                                     <td>{bill.payment}</td>
                                     <td>{bill.PWT}</td>
                                     <td>{bill.CASH}</td>
-<td>{bill.BANK}</td>
-<td>{bill.DUE}</td>
-<td>{bill.N_P}</td>
-<td>{bill.TCS}</td>
-<td>{bill.TDS}</td>
-<td>{bill.S_TDS}</td>
-<td>{bill.ATD}</td>
-<td>{bill.total}</td>
-</tr>
-))}
-<tr>
-<td>Total</td>
-<td></td>
-<td>{totalPayment}</td>
-<td>{totalPWT}</td>
-<td>{totalCASH}</td>
-<td>{totalBANK}</td>
-<td>{totalDUE}</td>
-<td>{totalN_P}</td>
-<td>{totalTCS}</td>
-<td>{totalTDS}</td>
-<td>{totalS_TDS}</td>
-<td>{totalATD}</td>
-<td>{totalAllTotals}</td>
-</tr>
-<tr>
-<td>Total N/P</td>
-<td>{totalNP}</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div style={{height:'30px'}}>
-</div>
-</>
-)
+                                    <td>{bill.BANK}</td>
+                                    <td>{bill.DUE}</td>
+                                    <td>{bill.N_P}</td>
+                                    <td>{bill.TCS}</td>
+                                    <td>{bill.TDS}</td>
+                                    <td>{bill.S_TDS}</td>
+                                    <td>{bill.ATD}</td>
+                                    <td>{bill.total}</td>
+                                </tr>
+                            ))}
+                            <tr>
+                                <td colSpan={2}>Total N/P</td>
+                                <td>{totalNP}</td>
+                            </tr>
+                            <tr>
+                                <td colSpan={2}>Total</td>
+                                <td>{totalPayment}</td>
+                                <td>{totalPWT}</td>
+                                <td>{totalCASH}</td>
+                                <td>{totalBANK}</td>
+                                <td>{totalDUE}</td>
+                                <td>{totalN_P}</td>
+                                <td>{totalTCS}</td>
+                                <td>{totalTDS}</td>
+                                <td>{totalS_TDS}</td>
+                                <td>{totalATD}</td>
+                                <td>{totalAllTotals}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div style={{height:'30px'}}>
+            </div>
+        </>
+    );
 }
 
 export default ViewBill;

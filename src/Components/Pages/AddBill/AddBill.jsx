@@ -41,7 +41,6 @@ function AddBill() {
         }
     }, [message]);
 
-
     useEffect(() => {
         // Initialize Bootstrap tooltip
         const tooltipTriggerList = Array.from(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -49,6 +48,11 @@ function AddBill() {
             new window.bootstrap.Tooltip(tooltipTriggerEl);
         });
     }, []);
+
+    useEffect(() => {
+        // Recalculate column totals whenever totalNP changes
+        updateColumnTotals(formData);
+    }, [totalNP]);
 
     const fetchPartyNames = async () => {
         try {
@@ -137,6 +141,9 @@ function AddBill() {
             ATD: 0,
             Total: 0
         });
+
+        // Add totalNP to payment column total
+        totals.payment += parseFloat(totalNP || 0);
         setColumnTotals(totals);
     };
 
@@ -228,22 +235,34 @@ function AddBill() {
                         {message}
                     </div>
                 )}
-
                 <div className="card-body">
                     <form onSubmit={handleSubmit}>
                         <div className="row mb-3">
                             <div className="col-md-6">
-                                <label className="form-label">Start Date:</label>
-                                <input type="date" className="form-control" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
+                                <label htmlFor="startDate" className="form-label">Start Date:</label>
+                                <input
+                                    type="date"
+                                    className="form-control"
+                                    id="startDate"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                />
                             </div>
                             <div className="col-md-6">
-                                <label className="form-label">End Date:</label>
-                                <input type="date" className="form-control" value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
+                                <label htmlFor="endDate" className="form-label">End Date:</label>
+                                <input
+                                    type="date"
+                                    className="form-control"
+                                    id="endDate"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                />
                             </div>
                         </div>
+
                         <div className="table-responsive">
-                            <table className="table table-bordered table-hover">
-                                <thead className="thead-dark">
+                            <table className="table table-bordered">
+                                <thead>
                                     <tr>
                                         <th>Code</th>
                                         <th>Party Name</th>
@@ -255,7 +274,7 @@ function AddBill() {
                                         <th>N/P</th>
                                         <th>TCS</th>
                                         <th>TDS</th>
-                                        <th>S_TDS</th>
+                                        <th>S.TDS</th>
                                         <th>ATD</th>
                                         <th>Total</th>
                                     </tr>
@@ -265,53 +284,56 @@ function AddBill() {
                                         <tr key={index}>
                                             <td>{data.code}</td>
                                             <td>{data.partyName}</td>
-                                            <td><input type="number" className="form-control" value={data.payment} onChange={(e) => handleChange(index, 'payment', e.target.value)} onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" className="form-control" value={data.PWT} onChange={(e) => handleChange(index, 'PWT', e.target.value)} onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" className="form-control" value={data.CASH} onChange={(e) => handleChange(index, 'CASH', e.target.value)} onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" className="form-control" value={data.BANK} onChange={(e) => handleChange(index, 'BANK', e.target.value)} onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" className="form-control" value={data.DUE} onChange={(e) => handleChange(index, 'DUE', e.target.value)} onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" className="form-control" value={data.N_P} onChange={(e) => handleChange(index, 'N_P', e.target.value)} onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" className="form-control" value={data.TCS} onChange={(e) => handleChange(index, 'TCS', e.target.value)} onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" className="form-control" value={data.TDS} onChange={(e) => handleChange(index, 'TDS', e.target.value)} onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" className="form-control" value={data.S_TDS} onChange={(e) => handleChange(index, 'S_TDS', e.target.value)} onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" className="form-control" value={data.ATD} onChange={(e) => handleChange(index, 'ATD', e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                            <td><input type="number" className="form-control" value={data.payment} onChange={(e) => handleChange(index, 'payment', e.target.value)} onKeyDown={handleKeyDown}/></td>
+                                            <td><input type="number" className="form-control" value={data.PWT} onChange={(e) => handleChange(index, 'PWT', e.target.value)} onKeyDown={handleKeyDown}/></td>
+                                            <td><input type="number" className="form-control" value={data.CASH} onChange={(e) => handleChange(index, 'CASH', e.target.value)}onKeyDown={handleKeyDown} /></td>
+                                            <td><input type="number" className="form-control" value={data.BANK} onChange={(e) => handleChange(index, 'BANK', e.target.value)}onKeyDown={handleKeyDown} /></td>
+                                            <td><input type="number" className="form-control" value={data.DUE} onChange={(e) => handleChange(index, 'DUE', e.target.value)}onKeyDown={handleKeyDown} /></td>
+                                            <td><input type="number" className="form-control" value={data.N_P} onChange={(e) => handleChange(index, 'N_P', e.target.value)}onKeyDown={handleKeyDown} /></td>
+                                            <td><input type="number" className="form-control" value={data.TCS} onChange={(e) => handleChange(index, 'TCS', e.target.value)} onKeyDown={handleKeyDown}/></td>
+                                            <td><input type="number" className="form-control" value={data.TDS} onChange={(e) => handleChange(index, 'TDS', e.target.value)} onKeyDown={handleKeyDown}/></td>
+                                            <td><input type="number" className="form-control" value={data.S_TDS} onChange={(e) => handleChange(index, 'S_TDS', e.target.value)} onKeyDown={handleKeyDown}/></td>
+                                            <td><input type="number" className="form-control" value={data.ATD} onChange={(e) => handleChange(index, 'ATD', e.target.value)} onKeyDown={handleKeyDown}/></td>
                                             <td>{getTotal(data)}</td>
                                         </tr>
                                     ))}
-                                    <tr>
-                                        <td colSpan="2" className="text-right font-weight-bold">Total</td>
-                                        <td>{columnTotals.payment.toFixed(2)}</td>
-                                        <td>{columnTotals.PWT.toFixed(2)}</td>
-                                        <td>{columnTotals.CASH.toFixed(2)}</td>
-                                        <td>{columnTotals.BANK.toFixed(2)}</td>
-                                        <td>{columnTotals.DUE.toFixed(2)}</td>
-                                        <td>{columnTotals.N_P.toFixed(2)}</td>
-                                        <td>{columnTotals.TCS.toFixed(2)}</td>
-                                        <td>{columnTotals.TDS.toFixed(2)}</td>
-                                        <td>{columnTotals.S_TDS.toFixed(2)}</td>
-                                        <td>{columnTotals.ATD.toFixed(2)}</td>
-                                        <td>{columnTotals.Total.toFixed(2)}</td>
-                                    </tr>
                                 </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colSpan="2">Total</th>
+                                        <th>{columnTotals.payment.toFixed(2)}</th>
+                                        <th>{columnTotals.PWT.toFixed(2)}</th>
+                                        <th>{columnTotals.CASH.toFixed(2)}</th>
+                                        <th>{columnTotals.BANK.toFixed(2)}</th>
+                                        <th>{columnTotals.DUE.toFixed(2)}</th>
+                                        <th>{columnTotals.N_P.toFixed(2)}</th>
+                                        <th>{columnTotals.TCS.toFixed(2)}</th>
+                                        <th>{columnTotals.TDS.toFixed(2)}</th>
+                                        <th>{columnTotals.S_TDS.toFixed(2)}</th>
+                                        <th>{columnTotals.ATD.toFixed(2)}</th>
+                                        <th>{columnTotals.Total.toFixed(2)}</th>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
-                        <div className="row mt-3">
-                            <div className="col-md-12">
-                                <label className="form-label">Total N/P:</label>
-                                <input type="number" className="form-control" style={{width:'130px'}} value={totalNP} onChange={(e) => setTotalNP(e.target.value)} />
-                            </div>
+                        <div className="form-group mt-3">
+                            <label htmlFor="totalNP" className="form-label">Total N/P:</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                id="totalNP"
+                                value={totalNP}
+                                style={{width:'130px'}}
+                                onChange={(e) => setTotalNP(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                            />
                         </div>
-                        <div className="d-flex justify-content-center">
-                            <button type="submit" className="btn btn-primary mt-3">Submit</button>
-                        </div>
+                        <button type="submit" className="btn btn-primary mt-3">Submit</button>
                     </form>
                 </div>
             </div>
         </div>
-        <div style={{height:'100px'}}>
-
-        </div>
-        </>
+    </>
     );
 }
 

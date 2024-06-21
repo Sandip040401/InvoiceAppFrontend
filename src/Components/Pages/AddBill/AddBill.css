@@ -1,41 +1,27 @@
-.add-bill-container {
-  background-color: #f8f9fa;
-  padding: 20px;
-  border-radius: 10px;
-}
-
+/* AddBill.css */
 .table-responsive {
-  margin-top: 20px;
-}
-
-.form-control-sm {
-  font-size: 0.875rem;
-  padding: 0.25rem 0.5rem;
-  height: auto;
-}
-
-.total-input {
-  background-color: #e9ecef;
-  text-align: right;
-}
-
-.heading {
-  font-size: 24px;
   margin-bottom: 20px;
 }
 
-.np {
-  display: flex;
-  align-items: center;
-  margin-top: 10px;
+.table thead th {
+  background-color: #007bff;
+  color: white;
+  text-align: center;
 }
 
-.np label {
-  margin-right: 10px;
+.table tfoot th {
+  background-color: #f8f9fa;
+  font-weight: bold;
 }
 
-.btn-sm {
-  font-size: 0.875rem;
-  padding: 0.25rem 0.5rem;
-  height: auto;
+.alert {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: auto;
+  z-index: 9999;
+}
+
+.form-label {
+  font-weight: bold;
 }
