@@ -201,7 +201,7 @@ function ManageBill() {
                 </Modal.Footer>
             </Modal>
         </Container>
-        <div style={{height:'30px'}}>
+        <div style={{height:'100px'}}>
         </div>
         </>
     );

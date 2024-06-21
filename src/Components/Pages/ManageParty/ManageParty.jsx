@@ -126,7 +126,7 @@ function ManageParty() {
             </Row>
             <div className="extra"></div>
         </Container>
-        <div style={{height:'30px'}}>
+        <div style={{height:'100px'}}>
         </div>
         </>
     );

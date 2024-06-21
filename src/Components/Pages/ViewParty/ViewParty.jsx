@@ -321,7 +321,7 @@ function ViewParty() {
             )}
             {isError && <div className="alert alert-danger mt-4">{message}</div>}
         </div>
-        <div style={{height:'30px'}}>
+        <div style={{height:'100px'}}>
         </div>
         </>
     );
