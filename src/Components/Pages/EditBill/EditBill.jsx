@@ -36,8 +36,9 @@ function EditBill() {
             const data = await response.json();
             const updatedBills = data.map(bill => ({
                 ...bill,
+                // serialNo: index + 1,
                 total: calculateRowTotal(bill),
-            }));
+            })).sort((a, b) => a.code.localeCompare(b.code));
             setBills(updatedBills);
             if (data.length > 0) {
                 setTotalNP(data[0].totalNP);
@@ -118,6 +119,7 @@ function EditBill() {
     }
 
     const handleSaveTotalNP = async () => {
+
         try {
             const email = user.email;  // Fetch the user email
             const response = await fetch(`${backendUrl}/api/bills/update/TotalNP`, {
@@ -253,6 +255,7 @@ function EditBill() {
                         <table className="table table-striped">
                             <thead>
                                 <tr>
+                                    <th scope="col">Sl no.</th>
                                     <th scope="col">Code</th>
                                     <th scope="col">PartyName</th>
                                     <th scope="col">Payment</th>
@@ -271,10 +274,11 @@ function EditBill() {
                             <tbody>
                                 {bills.map((bill, index) => (
                                     <tr key={bill._id}>
+                                        <td>{index+1}</td>
                                         <td>{bill.code}</td>
                                         <td>{bill.partyName}</td>
                                         <td>
-                                            {isEditing ? (
+                                            <b>{isEditing ? (
                                                 <input
                                                     type="number"
                                                     value={bill.payment}
@@ -284,7 +288,7 @@ function EditBill() {
                                                 />
                                             ) : (
                                                 bill.payment
-                                            )}
+                                            )}</b>
                                         </td>
                                         <td>
                                             {isEditing ? (
@@ -407,9 +411,9 @@ function EditBill() {
                                     </tr>
                                 ))}
                                 <tr>
-                                    <td colSpan="2" className="text-end">Total N/P:</td>
+                                    <td colSpan="3" className="text-end"><b>Total N/P:</b></td>
                                     <td>
-                                        {isEditing ? (
+                                        <b>{isEditing ? (
                                             <input
                                                 type="number"
                                                 value={totalNP}
@@ -418,12 +422,12 @@ function EditBill() {
                                             />
                                         ) : (
                                             totalNP
-                                        )}
+                                        )}</b>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td colSpan="2" className="text-end fw-bold">Total:</td>
-                                    <td>{totalPayment}</td>
+                                    <td colSpan="3" className="text-end fw-bold">Total:</td>
+                                    <td><b>{totalPayment}</b></td>
                                     <td>{totalPWT}</td>
                                     <td>{totalCASH}</td>
                                     <td>{totalBANK}</td>

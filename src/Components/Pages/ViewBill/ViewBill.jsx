@@ -43,7 +43,8 @@ function ViewBill() {
             const data = await response.json();
             let totalNP = data[0].totalNP;
             setTotalNP(totalNP); // Set totalNP state
-            setBills(data);
+            const sortedBills = data.sort((a, b) => a.code.localeCompare(b.code));
+            setBills(sortedBills);
             setShowDateRange(true);
 
             // Calculate totals and totalNP
@@ -71,7 +72,7 @@ function ViewBill() {
                 totalS_TDS += (bill.S_TDS);
                 totalATD += (bill.ATD);
                 totalAllTotals += (bill.total);
-            });
+            })
 
             // Include totalNP in the totalPayment calculation
             totalPayment += totalNP;
@@ -209,6 +210,7 @@ function ViewBill() {
                     <table className="table table-bordered">
                         <thead>
                             <tr>
+                                <th>Sl no.</th>
                                 <th>Code</th>
                                 <th>Party Name</th>
                                 <th>Payment</th>
@@ -227,9 +229,10 @@ function ViewBill() {
                         <tbody>
                             {bills.map((bill, index) => (
                                 <tr key={index}>
+                                    <td>{index+1}</td>
                                     <td>{bill.code}</td>
                                     <td>{bill.partyName}</td>
-                                    <td>{bill.payment}</td>
+                                    <td><b>{bill.payment}</b></td>
                                     <td>{bill.PWT}</td>
                                     <td>{bill.CASH}</td>
                                     <td>{bill.BANK}</td>
@@ -243,12 +246,12 @@ function ViewBill() {
                                 </tr>
                             ))}
                             <tr>
-                                <td colSpan={2}>Total N/P</td>
-                                <td>{totalNP}</td>
+                                <td colSpan={3}><b>Total N/P</b></td>
+                                <td><b>{totalNP}</b></td>
                             </tr>
                             <tr>
-                                <td colSpan={2}>Total</td>
-                                <td>{totalPayment}</td>
+                                <td colSpan={3}><b>Total</b></td>
+                                <td><b>{totalPayment}</b></td>
                                 <td>{totalPWT}</td>
                                 <td>{totalCASH}</td>
                                 <td>{totalBANK}</td>

@@ -264,6 +264,7 @@ function AddBill() {
                             <table className="table table-bordered">
                                 <thead>
                                     <tr>
+                                        <th>Sl no.</th>
                                         <th>Code</th>
                                         <th>Party Name</th>
                                         <th>Payment</th>
@@ -282,6 +283,7 @@ function AddBill() {
                                 <tbody>
                                     {formData.map((data, index) => (
                                         <tr key={index}>
+                                            <td>{index+1}</td>
                                             <td>{data.code}</td>
                                             <td>{data.partyName}</td>
                                             <td><input type="number" className="form-control" value={data.payment} onChange={(e) => handleChange(index, 'payment', e.target.value)} onKeyDown={handleKeyDown}/></td>
@@ -300,7 +302,7 @@ function AddBill() {
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <th colSpan="2">Total</th>
+                                        <th colSpan="3">Total</th>
                                         <th>{columnTotals.payment.toFixed(2)}</th>
                                         <th>{columnTotals.PWT.toFixed(2)}</th>
                                         <th>{columnTotals.CASH.toFixed(2)}</th>
