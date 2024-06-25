@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import ViewParty from './Components/Pages/ViewParty/ViewParty';
 import AddParty from './Components/Pages/AddParty/AddParty';
@@ -14,7 +14,6 @@ import Dashboard from './Components/Dashboard/Dashboard';
 import Help from './Components/Help/Help';
 import Pricing from './Components/Pricing/Pricing';
 import { useAuth0 } from "@auth0/auth0-react";
-import axios from 'axios';
 import MainHome from './Components/MainPage/MainHome';
 import Features from './Components/MainPage/Features';
 import Documentation from './Components/MainPage/Documentation';
@@ -22,7 +21,18 @@ import ContactUs from './Components/MainPage/ContactUs';
 import EditBill from './Components/Pages/EditBill/EditBill';
 
 function App() {
-  const { isAuthenticated } = useAuth0();
+  const { isAuthenticated, isLoading } = useAuth0();
+
+  if (isLoading) {
+    return (
+      <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <p className="mt-3">Please wait...</p>
+      </div>
+    );
+  }
 
   return (
     <Router>
