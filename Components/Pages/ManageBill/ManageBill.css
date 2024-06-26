@@ -1,0 +1,29 @@
+.manage-bill-container {
+    padding: 20px;
+}
+
+.select-party-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.select-party-container h2 {
+    margin-right: 20px;
+}
+
+.bills-container {
+    margin-top: 20px;
+}
+
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+}
+
+.no-bills {
+    text-align: center;
+    margin-top: 20px;
+    color: #666;
+}
