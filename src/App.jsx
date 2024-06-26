@@ -52,7 +52,7 @@ function App() {
         <>
           {isAuthenticated && <Navbar />}
           <Routes>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<AddBill />} />
             <Route path="/help" element={<Help />} />
             <Route path="/view-party" element={<ViewParty />} />
             <Route path="/view-bill" element={<ViewBill />} />
