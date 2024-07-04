@@ -19,6 +19,7 @@ import Features from './Components/MainPage/Features';
 import Documentation from './Components/MainPage/Documentation';
 import ContactUs from './Components/MainPage/ContactUs';
 import EditBill from './Components/Pages/EditBill/EditBill';
+import ManageBillDateWise from './Components/Pages/ManageBill/ManageBillDateWise';
 
 function App() {
   const { isAuthenticated, isLoading } = useAuth0();
@@ -61,6 +62,7 @@ function App() {
             <Route path="/manage-party" element={<ManageParty />} />
             <Route path="/manage-bill" element={<ManageBill />} />
             <Route path="/edit-weekly-bill" element={<EditBill />} />
+            {/* <Route path="/delete-bill" element={<ManageBillDateWise />} /> */}
           </Routes>
           <Footer />
         </>

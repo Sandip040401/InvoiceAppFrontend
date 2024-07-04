@@ -25,6 +25,7 @@ function AddBill() {
         Total: 0
     });
     const [totalNP, setTotalNP] = useState(0); // New state variable for Total N/P input
+    const [isSubmitting, setIsSubmitting] = useState(false); // New state variable for submit button
 
     const backendUrl = import.meta.env.VITE_BASE_URL;
 
@@ -154,6 +155,7 @@ function AddBill() {
             setIsError(true);
             return;
         }
+        setIsSubmitting(true); // Disable the submit button
         try {
             const bills = formData.map(data => ({
                 code: data.code,
@@ -188,6 +190,8 @@ function AddBill() {
         } catch (error) {
             setMessage('Error adding bills: ' + error.message);
             setIsError(true);
+        } finally {
+            setIsSubmitting(false); // Re-enable the submit button
         }
     };
 
@@ -224,121 +228,90 @@ function AddBill() {
                 {message && (
                     <div className={`mt-3 alert ${isError ? 'alert-danger' : 'alert-success'}`} role="alert" style={{
                         position: 'fixed',
-                        top: '20px',  // Adjust as necessary to position from top
-                        right: '20px', // Adjust as necessary to position from right
-                        width: '300px', // Adjust the width of the alert
-                        zIndex: '1000', // Ensure the alert is above other content
-                        padding: '10px', // Adjust padding for content spacing
-                        textAlign: 'center', // Center align the text
-                        transform: 'translateY(0)' // Ensure alert stays at the top of the viewport
+                        top: '20px',  // Adjust as necessary
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        zIndex: 1000,
+                        maxWidth: '80%',
+                        textAlign: 'center',
                     }}>
                         {message}
                     </div>
                 )}
-                <div className="card-body">
-                    <form onSubmit={handleSubmit}>
-                        <div className="row mb-3">
-                            <div className="col-md-6">
-                                <label htmlFor="startDate" className="form-label">Start Date:</label>
-                                <input
-                                    type="date"
-                                    className="form-control"
-                                    id="startDate"
-                                    value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                />
-                            </div>
-                            <div className="col-md-6">
-                                <label htmlFor="endDate" className="form-label">End Date:</label>
-                                <input
-                                    type="date"
-                                    className="form-control"
-                                    id="endDate"
-                                    value={endDate}
-                                    onChange={(e) => setEndDate(e.target.value)}
-                                />
-                            </div>
+                <form onSubmit={handleSubmit} className="card-body">
+                    <div className="d-flex justify-content-center">
+                        <div className="form-group mx-4">
+                            <label htmlFor="startDate">Start Date:</label>
+                            <input type="date" id="startDate" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="form-control" required />
                         </div>
-
-                        <div className="table-responsive">
-                            <table className="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Sl no.</th>
-                                        <th>Code</th>
-                                        <th>Party Name</th>
-                                        <th>Payment</th>
-                                        <th>PWT</th>
-                                        <th>CASH</th>
-                                        <th>BANK</th>
-                                        <th>DUE</th>
-                                        <th>N/P</th>
-                                        <th>TCS</th>
-                                        <th>TDS</th>
-                                        <th>S.TDS</th>
-                                        <th>ATD</th>
-                                        <th>Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {formData.map((data, index) => (
-                                        <tr key={index}>
-                                            <td>{index+1}</td>
-                                            <td>{data.code}</td>
-                                            <td>{data.partyName}</td>
-                                            <td><input type="number" className="form-control" value={data.payment} onChange={(e) => handleChange(index, 'payment', e.target.value)} onKeyDown={handleKeyDown}/></td>
-                                            <td><input type="number" className="form-control" value={data.PWT} onChange={(e) => handleChange(index, 'PWT', e.target.value)} onKeyDown={handleKeyDown}/></td>
-                                            <td><input type="number" className="form-control" value={data.CASH} onChange={(e) => handleChange(index, 'CASH', e.target.value)}onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" className="form-control" value={data.BANK} onChange={(e) => handleChange(index, 'BANK', e.target.value)}onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" className="form-control" value={data.DUE} onChange={(e) => handleChange(index, 'DUE', e.target.value)}onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" className="form-control" value={data.N_P} onChange={(e) => handleChange(index, 'N_P', e.target.value)}onKeyDown={handleKeyDown} /></td>
-                                            <td><input type="number" className="form-control" value={data.TCS} onChange={(e) => handleChange(index, 'TCS', e.target.value)} onKeyDown={handleKeyDown}/></td>
-                                            <td><input type="number" className="form-control" value={data.TDS} onChange={(e) => handleChange(index, 'TDS', e.target.value)} onKeyDown={handleKeyDown}/></td>
-                                            <td><input type="number" className="form-control" value={data.S_TDS} onChange={(e) => handleChange(index, 'S_TDS', e.target.value)} onKeyDown={handleKeyDown}/></td>
-                                            <td><input type="number" className="form-control" value={data.ATD} onChange={(e) => handleChange(index, 'ATD', e.target.value)} onKeyDown={handleKeyDown}/></td>
-                                            <td>{getTotal(data)}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <th colSpan="3">Total</th>
-                                        <th>{columnTotals.payment.toFixed(2)}</th>
-                                        <th>{columnTotals.PWT.toFixed(2)}</th>
-                                        <th>{columnTotals.CASH.toFixed(2)}</th>
-                                        <th>{columnTotals.BANK.toFixed(2)}</th>
-                                        <th>{columnTotals.DUE.toFixed(2)}</th>
-                                        <th>{columnTotals.N_P.toFixed(2)}</th>
-                                        <th>{columnTotals.TCS.toFixed(2)}</th>
-                                        <th>{columnTotals.TDS.toFixed(2)}</th>
-                                        <th>{columnTotals.S_TDS.toFixed(2)}</th>
-                                        <th>{columnTotals.ATD.toFixed(2)}</th>
-                                        <th>{columnTotals.Total.toFixed(2)}</th>
-                                    </tr>
-                                </tfoot>
-                            </table>
+                        <div className="form-group mx-4">
+                            <label htmlFor="endDate">End Date:</label>
+                            <input type="date" id="endDate" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="form-control" required />
                         </div>
-                        <div className="form-group mt-3">
-                            <label htmlFor="totalNP" className="form-label">Total N/P:</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                id="totalNP"
-                                value={totalNP}
-                                style={{width:'130px'}}
-                                onChange={(e) => setTotalNP(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                            />
-                        </div>
-                        <button type="submit" className="btn btn-primary mt-3">Submit</button>
-                    </form>
-                </div>
+                    </div>
+                    <table className="table table-bordered mt-4">
+                        <thead className="thead-dark">
+                            <tr>
+                                <th>Code</th>
+                                <th>Party Name</th>
+                                <th>Payment</th>
+                                <th>PWT</th>
+                                <th>CASH</th>
+                                <th>BANK</th>
+                                <th>DUE</th>
+                                <th>N/P</th>
+                                <th>TCS</th>
+                                <th>TDS</th>
+                                <th>S_TDS</th>
+                                <th>ATD</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {formData.map((data, index) => (
+                                <tr key={index}>
+                                    <td>{data.code}</td>
+                                    <td>{data.partyName}</td>
+                                    <td><input type="number" className="form-control" value={data.payment} onChange={(e) => handleChange(index, "payment", e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                    <td><input type="number" className="form-control" value={data.PWT} onChange={(e) => handleChange(index, "PWT", e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                    <td><input type="number" className="form-control" value={data.CASH} onChange={(e) => handleChange(index, "CASH", e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                    <td><input type="number" className="form-control" value={data.BANK} onChange={(e) => handleChange(index, "BANK", e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                    <td><input type="number" className="form-control" value={data.DUE} onChange={(e) => handleChange(index, "DUE", e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                    <td><input type="number" className="form-control" value={data.N_P} onChange={(e) => handleChange(index, "N_P", e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                    <td><input type="number" className="form-control" value={data.TCS} onChange={(e) => handleChange(index, "TCS", e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                    <td><input type="number" className="form-control" value={data.TDS} onChange={(e) => handleChange(index, "TDS", e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                    <td><input type="number" className="form-control" value={data.S_TDS} onChange={(e) => handleChange(index, "S_TDS", e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                    <td><input type="number" className="form-control" value={data.ATD} onChange={(e) => handleChange(index, "ATD", e.target.value)} onKeyDown={handleKeyDown} /></td>
+                                    <td>{getTotal(data)}</td>
+                                </tr>
+                            ))}
+                            <tr>
+                                <td colSpan="2"><b>Total N/P:</b></td>
+                                <td colSpan="1"><input type="number" className="form-control" value={totalNP} onChange={(e) => setTotalNP(e.target.value)} /></td>
+                            </tr>
+                            <tr>
+                                <td colSpan="2"><b>Total:</b></td>
+                                <td><b>{columnTotals.payment.toFixed(2)}</b></td>
+                                <td><b>{columnTotals.PWT.toFixed(2)}</b></td>
+                                <td><b>{columnTotals.CASH.toFixed(2)}</b></td>
+                                <td><b>{columnTotals.BANK.toFixed(2)}</b></td>
+                                <td><b>{columnTotals.DUE.toFixed(2)}</b></td>
+                                <td><b>{columnTotals.N_P.toFixed(2)}</b></td>
+                                <td><b>{columnTotals.TCS.toFixed(2)}</b></td>
+                                <td><b>{columnTotals.TDS.toFixed(2)}</b></td>
+                                <td><b>{columnTotals.S_TDS.toFixed(2)}</b></td>
+                                <td><b>{columnTotals.ATD.toFixed(2)}</b></td>
+                                <td><b>{columnTotals.Total.toFixed(2)}</b></td>
+                            </tr>
+                        </tbody>    
+                    </table>
+                    <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                        {isSubmitting ? 'Submitting...' : 'Submit'}
+                    </button>
+                </form>
             </div>
         </div>
-        <div style={{height:'100px'}}>
-
-        </div>
-    </>
+        </>
     );
 }
 

@@ -137,8 +137,8 @@ function EditBill() {
             fetchBills(); // Refresh the bills after the update
         } catch (error) {
             console.error('Error updating totalNP:', error);
-            setMessage('Failed to update total N/P. Please try again.');
-            setIsError(true);
+            // setMessage('Failed to update total N/P. Please try again.');
+            // setIsError(true);
         }
     }
 

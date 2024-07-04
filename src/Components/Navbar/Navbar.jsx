@@ -85,6 +85,7 @@ function Navbar() {
                             <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li><Link className="dropdown-item" to="/manage-party">Delete Party</Link></li>
                                 <li><Link className="dropdown-item" to="/manage-bill">Delete Bill</Link></li>
+                                {/* <li><Link className="dropdown-item" to="/delete-bill">Delete Billssss</Link></li> */}
                             </ul>
                         </li>
                         <li className="nav-item">
