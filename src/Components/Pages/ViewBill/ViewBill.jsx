@@ -61,24 +61,19 @@ function ViewBill() {
             let totalAllTotals = 0;
 
             data.forEach(bill => {
-                totalPayment += (bill.payment);
-                totalPWT += (bill.PWT);
-                totalCASH += (bill.CASH);
-                totalBANK += (bill.BANK);
-                totalDUE += (bill.DUE);
-                totalN_P += (bill.N_P);
-                totalTCS += (bill.TCS);
-                totalTDS += (bill.TDS);
-                totalS_TDS += (bill.S_TDS);
-                totalATD += (bill.ATD);
-                totalAllTotals += (bill.total);
-            })
+                totalPayment += bill.payment;
+                totalPWT += bill.PWT;
+                totalCASH += bill.CASH;
+                totalBANK += bill.BANK;
+                totalDUE += bill.DUE;
+                totalN_P += bill.N_P;
+                totalTCS += bill.TCS;
+                totalTDS += bill.TDS;
+                totalS_TDS += bill.S_TDS;
+                totalATD += bill.ATD;
+                totalAllTotals += (bill.PWT + bill.CASH + bill.BANK + bill.DUE + bill.N_P + bill.TCS + bill.TDS + bill.S_TDS + bill.ATD);
+            });
 
-            // Include totalNP in the totalPayment calculation
-            totalPayment += totalNP;
-
-            // Set states
-            setTotalPayment(totalPayment);
             setTotalPWT(totalPWT);
             setTotalCASH(totalCASH);
             setTotalBANK(totalBANK);
@@ -89,6 +84,12 @@ function ViewBill() {
             setTotalS_TDS(totalS_TDS);
             setTotalATD(totalATD);
             setTotalAllTotals(totalAllTotals);
+            // Include totalNP in the totalPayment calculation
+            totalPayment += totalNP;
+
+            // Set states
+            setTotalPayment(totalPayment);
+
         } catch (error) {
             console.error('Error fetching data:', error);
             // Handle error as needed
@@ -118,7 +119,7 @@ function ViewBill() {
                 bill.TDS,
                 bill.S_TDS,
                 bill.ATD,
-                bill.total
+                (bill.PWT + bill.CASH + bill.BANK + bill.DUE + bill.N_P + bill.TCS + bill.TDS + bill.S_TDS + bill.ATD)
             ]);
         });
         worksheet.addRow(['']);
@@ -242,7 +243,7 @@ function ViewBill() {
                                     <td>{bill.TDS}</td>
                                     <td>{bill.S_TDS}</td>
                                     <td>{bill.ATD}</td>
-                                    <td>{bill.total}</td>
+                                    <td><b>{bill.PWT + bill.CASH + bill.BANK + bill.DUE + bill.N_P + bill.TCS + bill.TDS + bill.S_TDS + bill.ATD}</b></td>
                                 </tr>
                             ))}
                             <tr>
@@ -261,7 +262,7 @@ function ViewBill() {
                                 <td>{totalTDS}</td>
                                 <td>{totalS_TDS}</td>
                                 <td>{totalATD}</td>
-                                <td>{totalAllTotals}</td>
+                                <td><b>{totalAllTotals}</b></td>
                             </tr>
                         </tbody>
                     </table>

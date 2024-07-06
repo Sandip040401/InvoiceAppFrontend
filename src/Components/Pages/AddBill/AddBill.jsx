@@ -229,8 +229,7 @@ function AddBill() {
                     <div className={`mt-3 alert ${isError ? 'alert-danger' : 'alert-success'}`} role="alert" style={{
                         position: 'fixed',
                         top: '20px',  // Adjust as necessary
-                        left: '50%',
-                        transform: 'translateX(-50%)',
+                        right: '20px',  // Position from the right side
                         zIndex: 1000,
                         maxWidth: '80%',
                         textAlign: 'center',
@@ -238,13 +237,14 @@ function AddBill() {
                         {message}
                     </div>
                 )}
+
                 <form onSubmit={handleSubmit} className="card-body">
-                    <div className="d-flex justify-content-center">
-                        <div className="form-group mx-4">
+                    <div className="d-flex justify-content-around">
+                        <div className="form-group mx-4"style={{width:"400px"}}>
                             <label htmlFor="startDate">Start Date:</label>
                             <input type="date" id="startDate" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="form-control" required />
                         </div>
-                        <div className="form-group mx-4">
+                        <div className="form-group mx-4" style={{width:"400px"}}>
                             <label htmlFor="endDate">End Date:</label>
                             <input type="date" id="endDate" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="form-control" required />
                         </div>
@@ -305,7 +305,7 @@ function AddBill() {
                             </tr>
                         </tbody>    
                     </table>
-                    <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                    <button type="submit" className="btn btn-primary" disabled={isSubmitting} style={{height:"40px",paddingTop:'10px'}}>
                         {isSubmitting ? 'Submitting...' : 'Submit'}
                     </button>
                 </form>
