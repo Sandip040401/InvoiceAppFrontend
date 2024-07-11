@@ -32,53 +32,51 @@ function ViewParty() {
 
     useEffect(() => {
         if (isAuthenticated && user?.email) {
-          fetchPartyNames(user.email);
+            fetchPartyNames(user.email);
         }
-      }, [isAuthenticated, user]);
+    }, [isAuthenticated, user]);
 
-      const fetchPartyNames = async (email) => {
+    const fetchPartyNames = async (email) => {
         try {
-          const response = await fetch(`${backendUrl}/api/party/withcode/${email}`);
-          if (!response.ok) {
-            throw new Error('Error fetching party names');
-          }
-          const partyNamesData = await response.json();
-    
-          if (!partyNamesData.codes || !partyNamesData.partyNames) {
-            throw new Error('Invalid party names data format');
-          }
-    
-          const { codes, partyNames } = partyNamesData;
-    
-          if (!Array.isArray(codes) || !Array.isArray(partyNames)) {
-            throw new Error('Codes or party names data is not an array');
-          }
-    
-          if (codes.length === 0 || partyNames.length === 0) {
-            throw new Error('No codes or party names data received');
-          }
-    
-          const sortedPartyNames = partyNames.sort((a, b) => a.localeCompare(b));
-          const sortedCodes = codes.sort((a, b) => a.localeCompare(b));
-    
-          setPartyNames(sortedPartyNames);
-          setCodes(sortedCodes);
-        } catch (error) {
-          console.error('Error fetching code list:', error);
-          setMessage('Error fetching code list. Please refresh to continue.');
-          setIsError(true);
-        }
-      };
+            const response = await fetch(`${backendUrl}/api/party/withcode/${email}`);
+            if (!response.ok) {
+                throw new Error('Error fetching party names');
+            }
+            const partyNamesData = await response.json();
 
-      const fetchBills = async () => {
+            if (!partyNamesData.codes || !partyNamesData.partyNames) {
+                throw new Error('Invalid party names data format');
+            }
+
+            const { codes, partyNames } = partyNamesData;
+
+            if (!Array.isArray(codes) || !Array.isArray(partyNames)) {
+                throw new Error('Codes or party names data is not an array');
+            }
+
+            if (codes.length === 0 || partyNames.length === 0) {
+                throw new Error('No codes or party names data received');
+            }
+
+            const sortedPartyNames = partyNames.sort((a, b) => a.localeCompare(b));
+            const sortedCodes = codes.sort((a, b) => a.localeCompare(b));
+
+            setPartyNames(sortedPartyNames);
+            setCodes(sortedCodes);
+        } catch (error) {
+            console.error('Error fetching code list:', error);
+            setMessage('Error fetching code list. Please refresh to continue.');
+            setIsError(true);
+        }
+    };
+
+    const fetchBills = async () => {
         try {
             setLoading(true);
             setIsError(false);
-    
-            // Get the user's email from Auth0
+
             const userEmail = user.email;
-    
-            // Construct the API URL with query parameters including the user's email
+
             const url = new URL(`${backendUrl}/api/bills`);
             const params = {
                 email: userEmail,
@@ -87,17 +85,16 @@ function ViewParty() {
                 startDate: startDate,
                 endDate: endDate
             };
-    
-            // Append the query parameters to the URL
+
             Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-    
+
             const response = await fetch(url.toString());
-    
             if (!response.ok) {
                 throw new Error('Failed to fetch bills');
             }
-    
+
             const data = await response.json();
+            console.log(data);
             setBills(data);
             calculateTotals(data);
         } catch (error) {
@@ -108,7 +105,6 @@ function ViewParty() {
             setLoading(false);
         }
     };
-    
 
     const calculateTotals = (bills) => {
         const totals = bills.reduce((acc, bill) => {
@@ -122,7 +118,7 @@ function ViewParty() {
             acc.totalTDS += bill.TDS;
             acc.totalS_TDS += bill.S_TDS;
             acc.totalATD += bill.ATD;
-            acc.totalAllTotals += bill.total;
+            acc.totalAllTotals += bill.PWT + bill.CASH + bill.BANK + bill.DUE + bill.N_P + bill.TCS + bill.TDS + bill.S_TDS + bill.ATD;
             return acc;
         }, {
             totalPayment: 0,
@@ -139,6 +135,10 @@ function ViewParty() {
         });
 
         setTotals(totals);
+    };
+
+    const calculateRowTotal = (bill) => {
+        return bill.PWT + bill.CASH + bill.BANK + bill.DUE + bill.N_P + bill.TCS + bill.TDS + bill.S_TDS + bill.ATD;
     };
 
     const handleDownloadExcel = () => {
@@ -162,7 +162,7 @@ function ViewParty() {
                 bill.TDS,
                 bill.S_TDS,
                 bill.ATD,
-                bill.total
+                calculateRowTotal(bill)
             ]);
         });
 
@@ -197,134 +197,132 @@ function ViewParty() {
     };
 
     return (
-
         <>
-       
-        <div className="container my-4">
-            <div className="row justify-content-center">
-                <div className="col-md-10">
-                    <div className="card">
-                        <div className="card-body">
-                            <div className="row mb-3">
-                                <div className="col-md-6">
-                                    <div className="form-group">
-                                        <label htmlFor="selectCode">Select Code</label>
-                                        <select id="selectCode" className="form-control" value={selectedCode} onChange={(e) => setSelectedCode(e.target.value)}>
-                                            <option value="">Select Code</option>
-                                            {codes.map((code, index) => (
-                                                <option key={index} value={code}>{code}</option>
-                                            ))}
-                                        </select>
+            <div className="container my-4">
+                <div className="row justify-content-center">
+                    <div className="col-md-10">
+                        <div className="card">
+                            <div className="card-body">
+                                <div className="row mb-3">
+                                    <div className="col-md-6">
+                                        <div className="form-group">
+                                            <label htmlFor="selectCode">Select Code</label>
+                                            <select id="selectCode" className="form-control" value={selectedCode} onChange={(e) => setSelectedCode(e.target.value)}>
+                                                <option value="">Select Code</option>
+                                                {codes.map((code, index) => (
+                                                    <option key={index} value={code}>{code}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="form-group mt-3">
+                                            <label htmlFor="selectParty">Select Party</label>
+                                            <select id="selectParty" className="form-control" value={selectedParty} onChange={(e) => setSelectedParty(e.target.value)}>
+                                                <option value="">Select Party</option>
+                                                {partyNames.map((party, index) => (
+                                                    <option key={index} value={party}>{party}</option>
+                                                ))}
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div className="form-group mt-3">
-                                        <label htmlFor="selectParty">Select Party</label>
-                                        <select id="selectParty" className="form-control" value={selectedParty} onChange={(e) => setSelectedParty(e.target.value)}>
-                                            <option value="">Select Party</option>
-                                            {partyNames.map((party, index) => (
-                                                <option key={index} value={party}>{party}</option>
-                                            ))}
-                                        </select>
+                                    <div className="col-md-6">
+                                        <div className="form-group">
+                                            <label htmlFor="startDate">Select Start Date</label>
+                                            <input type="date" id="startDate" className="form-control" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                                        </div>
+                                        <div className="form-group mt-3">
+                                            <label htmlFor="endDate">Select End Date</label>
+                                            <input type="date" id="endDate" className="form-control" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="col-md-6">
-                                    <div className="form-group">
-                                        <label htmlFor="startDate">Select Start Date</label>
-                                        <input type="date" id="startDate" className="form-control" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-                                    </div>
-                                    <div className="form-group mt-3">
-                                        <label htmlFor="endDate">Select End Date</label>
-                                        <input type="date" id="endDate" className="form-control" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-                                    </div>
+                                <div className="d-flex justify-content-center">
+                                    <button onClick={fetchBills} className="btn btn-primary">Fetch Data</button>
                                 </div>
-                            </div>
-                            <div className="d-flex justify-content-center">
-                                <button onClick={fetchBills} className="btn btn-primary">Fetch Data</button>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            {loading ? (
-                <div className="text-center my-4">Loading...</div>
-            ) : (
-                <div className="row justify-content-center mt-4">
-                    <div className="col-md-10">
-                        {bills.length > 0 ? (
-                            <div className="card">
-                                <div className="card-body">
-                                    <div className="table-responsive">
-                                        <table className="table table-bordered table-striped">
-                                            <thead className="thead-light">
-                                                <tr>
-                                                    <th>Date Range</th>
-                                                    <th>Party Name</th>
-                                                    <th>Payment</th>
-                                                    <th>PWT</th>
-                                                    <th>CASH</th>
-                                                    <th>BANK</th>
-                                                    <th>DUE</th>
-                                                    <th>N_P</th>
-                                                    <th>TCS</th>
-                                                    <th>TDS</th>
-                                                    <th>S_TDS</th>
-                                                    <th>ATD</th>
-                                                    <th>Total</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {bills.map((bill, index) => (
-                                                    <tr key={index}>
-                                                        <td>{bill.startDate} to {bill.endDate}</td>
-                                                        <td>{bill.partyName}</td>
-                                                        <td>{bill.payment}</td>
-                                                        <td>{bill.PWT}</td>
-                                                        <td>{bill.CASH}</td>
-                                                        <td>{bill.BANK}</td>
-                                                        <td>{bill.DUE}</td>
-                                                        <td>{bill.N_P}</td>
-                                                        <td>{bill.TCS}</td>
-                                                        <td>{bill.TDS}</td>
-                                                        <td>{bill.S_TDS}</td>
-                                                        <td>{bill.ATD}</td>
-                                                        <td>{bill.total}</td>
+                {loading ? (
+                    <div className="text-center my-4">Loading...</div>
+                ) : (
+                    <div className="row justify-content-center mt-4">
+                        <div className="col-md-10">
+                            {bills.length > 0 ? (
+                                <div className="card">
+                                    <div className="card-body">
+                                        <div className="table-responsive">
+                                            <table className="table table-bordered table-striped">
+                                                <thead className="thead-light">
+                                                    <tr>
+                                                        <th>Date Range</th>
+                                                        <th>Party Name</th>
+                                                        <th>Payment</th>
+                                                        <th>PWT</th>
+                                                        <th>CASH</th>
+                                                        <th>BANK</th>
+                                                        <th>DUE</th>
+                                                        <th>N_P</th>
+                                                        <th>TCS</th>
+                                                        <th>TDS</th>
+                                                        <th>S_TDS</th>
+                                                        <th>ATD</th>
+                                                        <th>Total</th>
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                            <tfoot>
-                                                <tr>
-                                                    <td colSpan="2"><strong>Total:</strong></td>
-                                                    <td>{totals.totalPayment}</td>
-                                                    <td>{totals.totalPWT}</td>
-                                                    <td>{totals.totalCASH}</td>
-                                                    <td>{totals.totalBANK}</td>
-                                                    <td>{totals.totalDUE}</td>
-                                                    <td>{totals.totalN_P}</td>
-                                                    <td>{totals.totalTCS}</td>
-                                                    <td>{totals.totalTDS}</td>
-                                                    <td>{totals.totalS_TDS}</td>
-                                                    <td>{totals.totalATD}</td>
-                                                    <td>{totals.totalAllTotals}</td>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
-                                    </div>
-                                    <div className="text-center mt-3">
-                                        <button onClick={handleDownloadExcel} className="btn btn-success">Download Excel</button>
+                                                </thead>
+                                                <tbody>
+                                                    {bills.map((bill, index) => (
+                                                        <tr key={index}>
+                                                            <td>{bill.startDate} to {bill.endDate}</td>
+                                                            <td>{bill.partyName}</td>
+                                                            <td>{bill.payment}</td>
+                                                            <td>{bill.PWT}</td>
+                                                            <td>{bill.CASH}</td>
+                                                            <td>{bill.BANK}</td>
+                                                            <td>{bill.DUE}</td>
+                                                            <td>{bill.N_P}</td>
+                                                            <td>{bill.TCS}</td>
+                                                            <td>{bill.TDS}</td>
+                                                            <td>{bill.S_TDS}</td>
+                                                            <td>{bill.ATD}</td>
+                                                            <td>{calculateRowTotal(bill)}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colSpan="2"><strong>Total:</strong></td>
+                                                        <td>{totals.totalPayment}</td>
+                                                        <td>{totals.totalPWT}</td>
+                                                        <td>{totals.totalCASH}</td>
+                                                        <td>{totals.totalBANK}</td>
+                                                        <td>{totals.totalDUE}</td>
+                                                        <td>{totals.totalN_P}</td>
+                                                        <td>{totals.totalTCS}</td>
+                                                        <td>{totals.totalTDS}</td>
+                                                        <td>{totals.totalS_TDS}</td>
+                                                        <td>{totals.totalATD}</td>
+                                                        <td>{totals.totalAllTotals}</td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                        <div className="text-center mt-3">
+                                            <button onClick={handleDownloadExcel} className="btn btn-success">Download Excel</button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ) : (
-                            <div className="text-center my-4">No bills found for the selected criteria.</div>
-                        )}
+                            ) : (
+                                <div className="text-center my-4">No bills found for the selected criteria.</div>
+                            )}
+                        </div>
                     </div>
-                </div>
-            )}
-            {isError && <div className="alert alert-danger mt-4">{message}</div>}
-        </div>
-        <div style={{height:'100px'}}>
-        </div>
+                )}
+                {isError && <div className="alert alert-danger mt-4">{message}</div>}
+            </div>
+            <div style={{height:'100px'}}></div>
         </>
     );
 }
 
 export default ViewParty;
+
