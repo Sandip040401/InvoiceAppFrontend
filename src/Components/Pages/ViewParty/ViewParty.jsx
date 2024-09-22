@@ -169,8 +169,14 @@ function ViewParty() {
         worksheet.addRow([
             '',
             '',
+            'Total NP:',
+            totals.totalN_P
+        ]);
+        worksheet.addRow([
+            '',
+            '',
             'Total:',
-            totals.totalPayment,
+            totals.totalPayment + totals.totalN_P,
             totals.totalPWT,
             totals.totalCASH,
             totals.totalBANK,
@@ -290,8 +296,12 @@ function ViewParty() {
                                                 </tbody>
                                                 <tfoot>
                                                     <tr>
+                                                        <td colSpan="2"><strong>Total NP:</strong></td>
+                                                        <td>{totals.totalN_P}</td>
+                                                    </tr>
+                                                    <tr>
                                                         <td colSpan="2"><strong>Total:</strong></td>
-                                                        <td>{totals.totalPayment}</td>
+                                                        <td>{totals.totalPayment+totals.totalN_P}</td>
                                                         <td>{totals.totalPWT}</td>
                                                         <td>{totals.totalCASH}</td>
                                                         <td>{totals.totalBANK}</td>
