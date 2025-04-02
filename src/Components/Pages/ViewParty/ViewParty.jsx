@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useAuth0 } from '@auth0/auth0-react';
 import ExcelJS from 'exceljs';
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import './ViewParty.css';
 
 function ViewParty() {
@@ -202,6 +204,84 @@ function ViewParty() {
         });
     };
 
+    const handleDownloadPDF = () => {
+        const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    
+        doc.setFontSize(5);
+        doc.text(`Bill Report (${startDate} - ${endDate})`, 14, 10);
+    
+        const tableColumn = [
+            "S.No", "Date Range", "P_Name", "Payment", "PWT", "CASH", "BANK", "DUE", "N_P", "TCS", "TDS", "S_TDS", "ATD", "Total"
+        ];
+    
+        const tableRows = bills.map((bill, index) => ([
+            index + 1,
+            `${bill.startDate}/${bill.endDate}`,
+            bill.partyName,
+            bill.payment,
+            bill.PWT,
+            bill.CASH,
+            bill.BANK,
+            bill.DUE,
+            bill.N_P,
+            bill.TCS,
+            bill.TDS,
+            bill.S_TDS,
+            bill.ATD,
+            calculateRowTotal(bill)
+        ]));
+    
+        // Add Total NP row
+        tableRows.push(["", "", "Total NP:", totals.totalN_P, "", "", "", "", "", "", "", "", "", ""]);
+    
+        // Add Grand Total row
+        tableRows.push([
+            "", "", "Total:", 
+            totals.totalPayment + totals.totalN_P,
+            totals.totalPWT,
+            totals.totalCASH,
+            totals.totalBANK,
+            totals.totalDUE,
+            totals.totalN_P,
+            totals.totalTCS,
+            totals.totalTDS,
+            totals.totalS_TDS,
+            totals.totalATD,
+            totals.totalAllTotals
+        ]);
+    
+        autoTable(doc, {
+            head: [tableColumn],
+            body: tableRows,
+            startY: 15,
+            theme: 'grid',
+            styles: { fontSize: 5, cellPadding: 0.5, overflow: 'linebreak' },
+            headStyles: { fillColor: [200, 200, 200], fontSize: 6, halign: "center" },
+            columnStyles: {
+                0: { cellWidth: 8 },   // Serial No
+                1: { cellWidth: "auto" },  // Date Range
+                2: { cellWidth: "auto" },  // P_Name
+                3: { cellWidth: "auto" },
+                4: { cellWidth: "auto" },
+                5: { cellWidth: "auto" },
+                6: { cellWidth: "auto" },
+                7: { cellWidth: "auto" },
+                8: { cellWidth: "auto" },
+                9: { cellWidth: "auto" },
+                10: { cellWidth: "auto" },
+                11: { cellWidth: "auto" },
+                12: { cellWidth: "auto" },
+                13: { cellWidth: "auto" }  // Total
+            },
+            margin: { top: 10, bottom: 5, left: 5, right: 5 },
+            tableWidth: 'wrap'
+        });
+    
+        doc.save(`bills_${startDate}_${endDate}.pdf`);
+    };
+    
+        
+
     return (
         <>
             <div className="container my-4">
@@ -316,8 +396,9 @@ function ViewParty() {
                                                 </tfoot>
                                             </table>
                                         </div>
-                                        <div className="text-center mt-3">
+                                        <div class="d-flex justify-content-center mt-3 gap-3">
                                             <button onClick={handleDownloadExcel} className="btn btn-success">Download Excel</button>
+                                            <button onClick={handleDownloadPDF} className="btn btn-success">Download PDF</button>
                                         </div>
                                     </div>
                                 </div>
