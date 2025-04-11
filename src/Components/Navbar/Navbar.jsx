@@ -54,6 +54,7 @@ function Navbar() {
                             <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li><Link className="dropdown-item" to="/view-party">View Party Wise</Link></li>
                                 <li><Link className="dropdown-item" to="/view-bill">View Weekly Bill</Link></li>
+                                <li><Link className="dropdown-item" to="/view-yearly-bill">View Yearly Bill</Link></li>
                             </ul>
                         </li>
                         <li className="nav-item dropdown">

@@ -20,6 +20,7 @@ import Documentation from './Components/MainPage/Documentation';
 import ContactUs from './Components/MainPage/ContactUs';
 import EditBill from './Components/Pages/EditBill/EditBill';
 import ManageBillDateWise from './Components/Pages/ManageBill/ManageBillDateWise';
+import ViewYearlyBill from './Components/Pages/ViewBill/ViewYearlyBill';
 
 function App() {
   const { isAuthenticated, isLoading } = useAuth0();
@@ -57,6 +58,7 @@ function App() {
             <Route path="/help" element={<Help />} />
             <Route path="/view-party" element={<ViewParty />} />
             <Route path="/view-bill" element={<ViewBill />} />
+            <Route path="/view-yearly-bill" element={<ViewYearlyBill />} />
             <Route path="/add-party" element={<AddParty />} />
             <Route path="/add-weekly-bill" element={<AddBill />} />
             <Route path="/manage-party" element={<ManageParty />} />
