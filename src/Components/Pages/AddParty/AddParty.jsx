@@ -21,7 +21,7 @@ function AddParty() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+    const alphanumericRegex = /^[a-zA-Z0-9 ]+$/;
 
     if (partyCode === "" || partyName === "") {
       setMessage("Please enter all details to submit");
@@ -54,10 +54,11 @@ function AddParty() {
 
   const handlePartyNameChange = (e) => {
     const value = e.target.value;
-    if (/^[a-zA-Z0-9]*$/.test(value)) {
+    if (/^[a-zA-Z0-9 ]*$/.test(value)) {
       setPartyName(value);
     }
   };
+  
 
   const handlePartyCodeChange = (e) => {
     const value = e.target.value;
