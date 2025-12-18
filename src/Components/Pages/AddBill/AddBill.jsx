@@ -24,30 +24,17 @@ function AddBill() {
     ATD: 0,
     Total: 0,
   });
-  const [totalNP, setTotalNP] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [totalNP, setTotalNP] = useState(0); // New state variable for Total N/P input
+  const [isSubmitting, setIsSubmitting] = useState(false); // New state variable for submit button
 
   const backendUrl = import.meta.env.VITE_BASE_URL;
 
-  console.log("=== COMPONENT RENDER ===");
-  console.log("Auth Status:", { isAuthenticated, userEmail: user?.email });
-  console.log("Backend URL:", backendUrl);
-  console.log("Form Data Length:", formData.length);
-  console.log("Party Names Length:", partyNames.length);
-  console.log("Codes Length:", codes.length);
-  console.log("Dates:", { startDate, endDate });
-  console.log("isSubmitting:", isSubmitting);
-  console.log("Message:", message);
-
   useEffect(() => {
-    console.log("=== USER EFFECT TRIGGERED ===");
-    console.log("User changed:", user?.email);
     fetchPartyNames();
   }, [user]);
 
   useEffect(() => {
     if (message) {
-      console.log("=== MESSAGE TIMER SET ===", message);
       const timer = setTimeout(() => {
         setMessage("");
       }, 5000);
@@ -56,7 +43,7 @@ function AddBill() {
   }, [message]);
 
   useEffect(() => {
-    console.log("=== BOOTSTRAP TOOLTIP INIT ===");
+    // Initialize Bootstrap tooltip
     const tooltipTriggerList = Array.from(
       document.querySelectorAll('[data-bs-toggle="tooltip"]')
     );
@@ -66,43 +53,25 @@ function AddBill() {
   }, []);
 
   useEffect(() => {
-    console.log("=== TOTAL NP CHANGED ===", totalNP);
+    // Recalculate column totals whenever totalNP changes
     updateColumnTotals(formData);
   }, [totalNP]);
 
   const fetchPartyNames = async () => {
-    console.log("=== FETCH PARTY NAMES START ===");
-    console.log("Is Authenticated:", isAuthenticated);
-    console.log("User Email:", user?.email);
-
     try {
       if (isAuthenticated && user) {
-        const fetchUrl = `${backendUrl}/api/party/${user.email}`;
-        console.log("Fetching from URL:", fetchUrl);
-
-        const response = await fetch(fetchUrl);
-        console.log("Response status:", response.status);
-        console.log("Response ok:", response.ok);
-
+        const response = await fetch(`${backendUrl}/api/party/${user.email}`);
         if (!response.ok) {
           throw new Error("Error fetching party names");
         }
-
         const partyNamesData = await response.json();
-        console.log("Party Names Data:", partyNamesData);
-
         if (!partyNamesData.codes || !partyNamesData.partyNames) {
           throw new Error("Invalid party names data format");
         }
-
         const { codes, partyNames } = partyNamesData;
-        console.log("Codes:", codes);
-        console.log("Party Names:", partyNames);
-
         if (!Array.isArray(codes) || !Array.isArray(partyNames)) {
           throw new Error("Codes or party names data is not an array");
         }
-
         if (codes.length === 0 || partyNames.length === 0) {
           throw new Error("No codes or party names data received");
         }
@@ -127,26 +96,14 @@ function AddBill() {
           S_TDS: "",
           ATD: "",
         }));
-
-        console.log(
-          "Initial Form Data Created:",
-          initialFormData.length,
-          "entries"
-        );
         setFormData(initialFormData);
-      } else {
-        console.log("Not authenticated or no user - skipping fetch");
       }
     } catch (error) {
-      console.error("=== ERROR FETCHING PARTY NAMES ===");
-      console.error("Error:", error);
-      console.error("Error message:", error.message);
-      console.error("Error stack:", error.stack);
+      console.error("Error fetching party names: ", error);
     }
   };
 
   const handleChange = (index, name, value) => {
-    console.log("=== HANDLE CHANGE ===", { index, name, value });
     const updatedFormData = [...formData];
     updatedFormData[index][name] = value || "0";
     setFormData(updatedFormData);
@@ -157,14 +114,10 @@ function AddBill() {
     const numbers = Object.entries(data)
       .filter(([key]) => !["payment", "code", "partyName"].includes(key))
       .map(([key, value]) => parseFloat(value || 0));
-    const total = numbers.reduce((acc, curr) => acc + curr, 0).toFixed(2);
-    return total;
+    return numbers.reduce((acc, curr) => acc + curr, 0).toFixed(2);
   };
 
   const updateColumnTotals = (data) => {
-    console.log("=== UPDATE COLUMN TOTALS ===");
-    console.log("Data length:", data.length);
-
     const totals = data.reduce(
       (acc, curr) => {
         acc.payment += parseFloat(curr.payment || 0);
@@ -195,35 +148,19 @@ function AddBill() {
       }
     );
 
+    // Add totalNP to payment column total
     totals.payment += parseFloat(totalNP || 0);
-    console.log("Calculated Totals:", totals);
     setColumnTotals(totals);
   };
 
   const handleSubmit = async (e) => {
-    console.log("=== HANDLE SUBMIT CALLED ===");
-    console.log("Event:", e);
-    console.log("Event type:", e.type);
-
     e.preventDefault();
-    console.log("preventDefault called");
-
-    console.log("Start Date:", startDate);
-    console.log("End Date:", endDate);
-
     if (!startDate || !endDate) {
-      console.log("=== DATE VALIDATION FAILED ===");
       setMessage("Both start date and end date are required.");
       setIsError(true);
       return;
     }
-
-    console.log("=== API CALL STARTING ===");
-    console.log("Current isSubmitting before set:", isSubmitting);
-
-    setIsSubmitting(true);
-    console.log("isSubmitting set to true");
-
+    setIsSubmitting(true); // Disable the submit button
     try {
       const bills = formData.map((data) => ({
         code: data.code,
@@ -241,64 +178,25 @@ function AddBill() {
         S_TDS: data.S_TDS,
         ATD: data.ATD,
       }));
-
-      console.log("Bills prepared:", bills.length, "bills");
-      console.log("Sample bill (first):", bills[0]);
-
       const email = user.email;
-      console.log("User email:", email);
-      console.log("Total NP:", totalNP);
-
-      const requestBody = { bills, totalNP, email };
-      console.log("Request body:", requestBody);
-
-      const submitUrl = `${backendUrl}/api/bills`;
-      console.log("Submit URL:", submitUrl);
-
-      const fetchOptions = {
+      const response = await fetch(`${backendUrl}/api/bills`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(requestBody),
-      };
-      console.log("Fetch options:", fetchOptions);
-
-      console.log("=== MAKING FETCH REQUEST ===");
-      const response = await fetch(submitUrl, fetchOptions);
-
-      console.log("=== RESPONSE RECEIVED ===");
-      console.log("Response status:", response.status);
-      console.log("Response ok:", response.ok);
-      console.log(
-        "Response headers:",
-        Object.fromEntries(response.headers.entries())
-      );
-
-      const responseText = await response.text();
-      console.log("Response text:", responseText);
+        body: JSON.stringify({ bills, totalNP, email }), // Include totalNP in the submission
+      });
 
       if (!response.ok) {
-        console.log("=== RESPONSE NOT OK ===");
-        throw new Error(responseText || "bills already exist");
+        throw new Error("bills already exist");
       }
-
-      console.log("=== SUCCESS ===");
       setMessage("Bills added successfully");
       setIsError(false);
     } catch (error) {
-      console.error("=== ERROR IN SUBMIT ===");
-      console.error("Error:", error);
-      console.error("Error name:", error.name);
-      console.error("Error message:", error.message);
-      console.error("Error stack:", error.stack);
-
       setMessage("Error adding bills: " + error.message);
       setIsError(true);
     } finally {
-      console.log("=== FINALLY BLOCK ===");
-      setIsSubmitting(false);
-      console.log("isSubmitting set to false");
+      setIsSubmitting(false); // Re-enable the submit button
     }
   };
 
@@ -329,9 +227,6 @@ function AddBill() {
     inputs[nextIndex].focus();
   };
 
-  console.log("=== ABOUT TO RENDER JSX ===");
-  console.log("Form will render with", formData.length, "rows");
-
   return (
     <>
       <div className="container mt-5">
@@ -354,8 +249,8 @@ function AddBill() {
               role="alert"
               style={{
                 position: "fixed",
-                top: "20px",
-                right: "20px",
+                top: "20px", // Adjust as necessary
+                right: "20px", // Position from the right side
                 zIndex: 1000,
                 maxWidth: "80%",
                 textAlign: "center",
