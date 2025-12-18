@@ -155,6 +155,8 @@ function AddBill() {
             setIsError(true);
             return;
         }
+        console.log("api hit");
+        
         setIsSubmitting(true); // Disable the submit button
         try {
             const bills = formData.map(data => ({
