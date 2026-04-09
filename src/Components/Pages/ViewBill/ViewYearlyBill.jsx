@@ -24,6 +24,7 @@ function ViewYearlyBill() {
     const [totalS_TDS, setTotalS_TDS] = useState(0);
     const [totalATD, setTotalATD] = useState(0);
     // new structure totals
+    const [totalNpD_Return, setTotalNpD_Return] = useState(0);
     const [totalNpS_TDS, setTotalNpS_TDS] = useState(0);
     const [totalNpP_ATD, setTotalNpP_ATD] = useState(0);
     const [totalNpC_ATD, setTotalNpC_ATD] = useState(0);
@@ -42,7 +43,7 @@ function ViewYearlyBill() {
         if (isNewStructure) {
             return (bill.PWT || 0) + (bill.CASH || 0) + (bill.BANK || 0) +
                    (bill.DUE || 0) + (bill.N_P || 0) +
-                   (bill.npS_TDS || 0) + (bill.npP_ATD || 0) + (bill.npC_ATD || 0);
+                   (bill.npS_TDS || 0) + (bill.npP_ATD || 0) + (bill.npC_ATD || 0) + (bill.npD_Return || 0);
         }
         return (bill.PWT || 0) + (bill.CASH || 0) + (bill.BANK || 0) +
                (bill.DUE || 0) + (bill.N_P || 0) + (bill.TCS || 0) +
@@ -67,7 +68,7 @@ function ViewYearlyBill() {
 
             let tPayment = 0, tPWT = 0, tCASH = 0, tBANK = 0, tDUE = 0, tN_P = 0;
             let tTCS = 0, tTDS = 0, tS_TDS = 0, tATD = 0;
-            let tNpS_TDS = 0, tNpP_ATD = 0, tNpC_ATD = 0;
+            let tNpS_TDS = 0, tNpP_ATD = 0, tNpC_ATD = 0, tNpD_Return = 0;
             let tAllTotals = 0;
 
             data.forEach(bill => {
@@ -80,6 +81,7 @@ function ViewYearlyBill() {
                 tAllTotals += getRowTotal(bill);
 
                 if (isNewStructure) {
+                    tNpD_Return += bill.npD_Return || 0;
                     tNpS_TDS += bill.npS_TDS || 0;
                     tNpP_ATD += bill.npP_ATD || 0;
                     tNpC_ATD += bill.npC_ATD || 0;
@@ -100,6 +102,7 @@ function ViewYearlyBill() {
             setTotalTDS(tTDS);
             setTotalS_TDS(tS_TDS);
             setTotalATD(tATD);
+            setTotalNpD_Return(tNpD_Return);
             setTotalNpS_TDS(tNpS_TDS);
             setTotalNpP_ATD(tNpP_ATD);
             setTotalNpC_ATD(tNpC_ATD);
@@ -116,7 +119,7 @@ function ViewYearlyBill() {
         const worksheet = workbook.addWorksheet('Bills');
 
         if (isNewStructure) {
-            worksheet.addRow(['Sl no', 'Code', 'PartyName', 'Payment', 'PWT', 'CASH', 'BANK', 'DUE', 'N/P', 'STDS', 'P-ATD', 'C-ATD', 'Total']);
+            worksheet.addRow(['Sl no', 'Code', 'PartyName', 'Payment', 'PWT', 'CASH', 'BANK', 'DUE', 'N/P', 'D-Return', 'STDS', 'P-ATD', 'C-ATD', 'Total']);
         } else {
             worksheet.addRow(['Sl no', 'Code', 'PartyName', 'Payment', 'PWT', 'CASH', 'BANK', 'DUE', 'N_P', 'TCS', 'TDS', 'S_TDS', 'ATD', 'Total']);
         }
@@ -126,7 +129,7 @@ function ViewYearlyBill() {
                 worksheet.addRow([
                     index + 1, bill.code, bill.partyName, bill.payment,
                     bill.PWT, bill.CASH, bill.BANK, bill.DUE, bill.N_P,
-                    bill.npS_TDS || 0, bill.npP_ATD || 0, bill.npC_ATD || 0,
+                    bill.npD_Return || 0, bill.npS_TDS || 0, bill.npP_ATD || 0, bill.npC_ATD || 0,
                     getRowTotal(bill)
                 ]);
             } else {
@@ -143,7 +146,7 @@ function ViewYearlyBill() {
         worksheet.addRow(['', '', 'N/P:', totalNP]);
 
         if (isNewStructure) {
-            worksheet.addRow(['', '', 'Total:', totalPayment, totalPWT, totalCASH, totalBANK, totalDUE, totalN_P, totalNpS_TDS, totalNpP_ATD, totalNpC_ATD, totalAllTotals]);
+            worksheet.addRow(['', '', 'Total:', totalPayment, totalPWT, totalCASH, totalBANK, totalDUE, totalN_P, totalNpD_Return, totalNpS_TDS, totalNpP_ATD, totalNpC_ATD, totalAllTotals]);
         } else {
             worksheet.addRow(['', '', 'Total:', totalPayment, totalPWT, totalCASH, totalBANK, totalDUE, totalN_P, totalTCS, totalTDS, totalS_TDS, totalATD, totalAllTotals]);
         }
@@ -171,7 +174,7 @@ function ViewYearlyBill() {
         doc.text(`Bill Report (${startDate} - ${endDate})`, 10, 10);
 
         const tableColumn = isNewStructure
-            ? ["Sl", "Code", "Party", "Pay", "PWT", "Cash", "Bank", "Due", "N/P", "STDS", "P-ATD", "C-ATD", "Total"]
+            ? ["Sl", "Code", "Party", "Pay", "PWT", "Cash", "Bank", "Due", "N/P","D-Return", "STDS", "P-ATD", "C-ATD", "Total"]
             : ["Sl", "Code", "Party", "Pay", "PWT", "Cash", "Bank", "Due", "N/P", "TCS", "TDS", "S.TDS", "ATD", "Total"];
 
         const limitedBills = bills.slice(0, 30);
@@ -181,7 +184,7 @@ function ViewYearlyBill() {
                 return [
                     index + 1, bill.code, bill.partyName, bill.payment,
                     bill.PWT, bill.CASH, bill.BANK, bill.DUE, bill.N_P,
-                    bill.npS_TDS || 0, bill.npP_ATD || 0, bill.npC_ATD || 0,
+                    bill.npD_Return || 0, bill.npS_TDS || 0, bill.npP_ATD || 0, bill.npC_ATD || 0,
                     getRowTotal(bill)
                 ];
             }
@@ -196,7 +199,7 @@ function ViewYearlyBill() {
         tableRows.push(["", "", "N/P:", totalNP, "", "", "", "", "", "", "", "", "", ""]);
 
         if (isNewStructure) {
-            tableRows.push(["", "", "Total:", totalPayment, totalPWT, totalCASH, totalBANK, totalDUE, totalN_P, totalNpS_TDS, totalNpP_ATD, totalNpC_ATD, totalAllTotals]);
+            tableRows.push(["", "", "Total:", totalPayment, totalPWT, totalCASH, totalBANK, totalDUE, totalN_P, totalNpD_Return, totalNpS_TDS, totalNpP_ATD, totalNpC_ATD, totalAllTotals]);
         } else {
             tableRows.push(["", "", "Total:", totalPayment, totalPWT, totalCASH, totalBANK, totalDUE, totalN_P, totalTCS, totalTDS, totalS_TDS, totalATD, totalAllTotals]);
         }
@@ -277,6 +280,7 @@ function ViewYearlyBill() {
                                 <th>N/P</th>
                                 {isNewStructure ? (
                                     <>
+                                        <th>D-Return</th>
                                         <th>STDS</th>
                                         <th>P-ATD</th>
                                         <th>C-ATD</th>
@@ -306,6 +310,7 @@ function ViewYearlyBill() {
                                     <td>{bill.N_P}</td>
                                     {isNewStructure ? (
                                         <>
+                                            <td>{bill.npD_Return || 0}</td>
                                             <td>{bill.npS_TDS || 0}</td>
                                             <td>{bill.npP_ATD || 0}</td>
                                             <td>{bill.npC_ATD || 0}</td>
@@ -336,6 +341,7 @@ function ViewYearlyBill() {
                                 <td>{totalN_P}</td>
                                 {isNewStructure ? (
                                     <>
+                                        <td>{totalNpD_Return}</td>
                                         <td>{totalNpS_TDS}</td>
                                         <td>{totalNpP_ATD}</td>
                                         <td>{totalNpC_ATD}</td>

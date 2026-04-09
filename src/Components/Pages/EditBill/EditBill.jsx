@@ -51,7 +51,7 @@ function EditBill() {
     const calculateRowTotal = (bill) => {
         if (bill.isNewStructure) {
             const npTotal = (bill.npEntries || []).reduce(
-                (sum, e) => sum + (parseFloat(e.S_TDS) || 0) + (parseFloat(e.P_ATD) || 0) + (parseFloat(e.C_ATD) || 0),
+                (sum, e) => sum +  (parseFloat(e.D_Return) || 0) + (parseFloat(e.S_TDS) || 0) + (parseFloat(e.P_ATD) || 0) + (parseFloat(e.C_ATD) || 0),
                 0
             );
             const fieldsToSum = ['PWT', 'CASH', 'BANK', 'DUE', 'N_P'];
@@ -179,6 +179,7 @@ function EditBill() {
     const totalATD   = calculateColumnTotal('ATD');
 
     // new structure totals
+    const totalNpD_Return = calculateNpEntryTotal('D_Return');
     const totalNpS_TDS = calculateNpEntryTotal('S_TDS');
     const totalNpP_ATD = calculateNpEntryTotal('P_ATD');
     const totalNpC_ATD = calculateNpEntryTotal('C_ATD');
@@ -289,6 +290,7 @@ function EditBill() {
                                     {/* switch headers by structure */}
                                     {isNewStructure ? (
                                         <>
+                                            <th>D_Return</th>
                                             <th>STDS</th>
                                             <th>P-ATD</th>
                                             <th>C-ATD</th>
@@ -358,6 +360,13 @@ function EditBill() {
                                         {/* structure-dependent columns */}
                                         {isNewStructure ? (
                                             <>
+                                              <td>{isEditing ? (
+                                                    <input type="number"
+                                                        value={bill.npEntries?.[0]?.D_Return ?? 0}
+                                                        className="form-control" onKeyDown={handleKeyDown}
+                                                        onChange={(e) => handleNpEntryChange(e, 'D_Return', index)} />
+                                                ) : (bill.npEntries?.[0]?.D_Return ?? 0)}</td>
+
                                                 <td>{isEditing ? (
                                                     <input type="number"
                                                         value={bill.npEntries?.[0]?.S_TDS ?? 0}
@@ -435,6 +444,7 @@ function EditBill() {
                                     <td>{totalN_P}</td>
                                     {isNewStructure ? (
                                         <>
+                                            <td>{totalNpD_Return}</td>
                                             <td>{totalNpS_TDS}</td>
                                             <td>{totalNpP_ATD}</td>
                                             <td>{totalNpC_ATD}</td>

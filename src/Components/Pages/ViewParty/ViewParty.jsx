@@ -30,6 +30,7 @@ function ViewParty() {
         totalS_TDS: 0,
         totalATD: 0,
         // new structure
+        totalNpD_Return: 0,
         totalNpS_TDS: 0,
         totalNpP_ATD: 0,
         totalNpC_ATD: 0,
@@ -118,6 +119,7 @@ function ViewParty() {
 
             if (bill.isNewStructure) {
                 const e = (bill.npEntries || [])[0] || {};
+                acc.totalNpD_Return += e.D_Return || 0;
                 acc.totalNpS_TDS += e.S_TDS || 0;
                 acc.totalNpP_ATD += e.P_ATD || 0;
                 acc.totalNpC_ATD += e.C_ATD || 0;
@@ -132,7 +134,7 @@ function ViewParty() {
             totalPayment: 0, totalPWT: 0, totalCASH: 0, totalBANK: 0,
             totalDUE: 0, totalN_P: 0,
             totalTCS: 0, totalTDS: 0, totalS_TDS: 0, totalATD: 0,
-            totalNpS_TDS: 0, totalNpP_ATD: 0, totalNpC_ATD: 0,
+            totalNpD_Return: 0, totalNpS_TDS: 0, totalNpP_ATD: 0, totalNpC_ATD: 0,
             totalAllTotals: 0
         });
 
@@ -145,7 +147,7 @@ function ViewParty() {
             const e = (bill.npEntries || [])[0] || {};
             return (bill.PWT || 0) + (bill.CASH || 0) + (bill.BANK || 0) +
                    (bill.DUE || 0) + (bill.N_P || 0) +
-                   (e.S_TDS || 0) + (e.P_ATD || 0) + (e.C_ATD || 0);
+                   (e.D_Return || 0) + (e.S_TDS || 0) + (e.P_ATD || 0) + (e.C_ATD || 0);
         }
         return (bill.PWT || 0) + (bill.CASH || 0) + (bill.BANK || 0) +
                (bill.DUE || 0) + (bill.N_P || 0) + (bill.TCS || 0) +
@@ -157,7 +159,7 @@ function ViewParty() {
         const worksheet = workbook.addWorksheet('Bills');
 
         if (isNewStructure) {
-            worksheet.addRow(['Serial No', 'Date Range', 'P_Name', 'Payment', 'PWT', 'CASH', 'BANK', 'DUE', 'N/P', 'STDS', 'P-ATD', 'C-ATD', 'Total']);
+            worksheet.addRow(['Serial No', 'Date Range', 'P_Name', 'Payment', 'PWT', 'CASH', 'BANK', 'DUE', 'N/P', "D-Return", 'STDS', 'P-ATD', 'C-ATD', 'Total']);
         } else {
             worksheet.addRow(['Serial No', 'Date Range', 'P_Name', 'Payment', 'PWT', 'CASH', 'BANK', 'DUE', 'N_P', 'TCS', 'TDS', 'S_TDS', 'ATD', 'Total']);
         }
@@ -168,7 +170,7 @@ function ViewParty() {
                 worksheet.addRow([
                     index + 1, `${bill.startDate}/${bill.endDate}`, bill.partyName, bill.payment,
                     bill.PWT, bill.CASH, bill.BANK, bill.DUE, bill.N_P,
-                    e.S_TDS || 0, e.P_ATD || 0, e.C_ATD || 0,
+                    e.D_Return || 0, e.S_TDS || 0, e.P_ATD || 0, e.C_ATD || 0,
                     calculateRowTotal(bill)
                 ]);
             } else {
@@ -187,7 +189,7 @@ function ViewParty() {
             worksheet.addRow(['', '', 'Total:',
                 totals.totalPayment + totals.totalN_P,
                 totals.totalPWT, totals.totalCASH, totals.totalBANK, totals.totalDUE, totals.totalN_P,
-                totals.totalNpS_TDS, totals.totalNpP_ATD, totals.totalNpC_ATD,
+                totals.totalNpD_Return, totals.totalNpS_TDS, totals.totalNpP_ATD, totals.totalNpC_ATD,
                 totals.totalAllTotals
             ]);
         } else {
@@ -219,7 +221,7 @@ function ViewParty() {
         doc.text(`Bill Report (${startDate} - ${endDate})`, 14, 10);
 
         const tableColumn = isNewStructure
-            ? ["S.No", "Date Range", "P_Name", "Payment", "PWT", "CASH", "BANK", "DUE", "N/P", "STDS", "P-ATD", "C-ATD", "Total"]
+            ? ["S.No", "Date Range", "P_Name", "Payment", "PWT", "CASH", "BANK", "DUE", "N/P","D-Return", "STDS", "P-ATD", "C-ATD", "Total"]
             : ["S.No", "Date Range", "P_Name", "Payment", "PWT", "CASH", "BANK", "DUE", "N_P", "TCS", "TDS", "S_TDS", "ATD", "Total"];
 
         const tableRows = bills.map((bill, index) => {
@@ -228,7 +230,7 @@ function ViewParty() {
                 return [
                     index + 1, `${bill.startDate}/${bill.endDate}`, bill.partyName, bill.payment,
                     bill.PWT, bill.CASH, bill.BANK, bill.DUE, bill.N_P,
-                    e.S_TDS || 0, e.P_ATD || 0, e.C_ATD || 0,
+                    e.D_Return || 0, e.S_TDS || 0, e.P_ATD || 0, e.C_ATD || 0,
                     calculateRowTotal(bill)
                 ];
             }
@@ -246,7 +248,7 @@ function ViewParty() {
             tableRows.push(["", "", "Total:",
                 totals.totalPayment + totals.totalN_P,
                 totals.totalPWT, totals.totalCASH, totals.totalBANK, totals.totalDUE, totals.totalN_P,
-                totals.totalNpS_TDS, totals.totalNpP_ATD, totals.totalNpC_ATD,
+                totals.totalNpD_Return, totals.totalNpS_TDS, totals.totalNpP_ATD, totals.totalNpC_ATD,
                 totals.totalAllTotals
             ]);
         } else {
@@ -355,6 +357,7 @@ function ViewParty() {
                                                         <th>N/P</th>
                                                         {isNewStructure ? (
                                                             <>
+                                                                <th>D-Return</th>
                                                                 <th>STDS</th>
                                                                 <th>P-ATD</th>
                                                                 <th>C-ATD</th>
@@ -383,6 +386,7 @@ function ViewParty() {
                                                             <td>{bill.N_P}</td>
                                                             {bill.isNewStructure ? (
                                                                 <>
+                                                                    <td>{(bill.npEntries?.[0]?.D_Return) || 0}</td>
                                                                     <td>{(bill.npEntries?.[0]?.S_TDS) || 0}</td>
                                                                     <td>{(bill.npEntries?.[0]?.P_ATD) || 0}</td>
                                                                     <td>{(bill.npEntries?.[0]?.C_ATD) || 0}</td>
@@ -414,6 +418,7 @@ function ViewParty() {
                                                         <td>{totals.totalN_P}</td>
                                                         {isNewStructure ? (
                                                             <>
+                                                                <td>{totals.totalNpD_Return}</td>
                                                                 <td>{totals.totalNpS_TDS}</td>
                                                                 <td>{totals.totalNpP_ATD}</td>
                                                                 <td>{totals.totalNpC_ATD}</td>

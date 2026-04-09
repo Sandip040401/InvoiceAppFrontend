@@ -19,6 +19,7 @@ function AddBill() {
     BANK: 0,
     DUE: 0,
     N_P: 0,
+    D_Return: 0,   // ✅ new field for D_Return
     S_TDS: 0,   // ✅ replaced TCS
     P_ATD: 0,   // ✅ replaced TDS
     C_ATD: 0,   // ✅ replaced ATD
@@ -98,6 +99,7 @@ function AddBill() {
           BANK: "",
           DUE: "",
           N_P: "",
+          D_Return:"",
           S_TDS: "",   // ✅ replaced TCS
           P_ATD: "",   // ✅ replaced TDS
           C_ATD: "",   // ✅ replaced ATD
@@ -135,6 +137,7 @@ function AddBill() {
         acc.BANK    += parseFloat(curr.BANK    || 0);
         acc.DUE     += parseFloat(curr.DUE     || 0);
         acc.N_P     += parseFloat(curr.N_P     || 0);
+        acc.D_Return += parseFloat(curr.D_Return || 0);   // ✅
         acc.S_TDS   += parseFloat(curr.S_TDS   || 0);   // ✅
         acc.P_ATD   += parseFloat(curr.P_ATD   || 0);   // ✅
         acc.C_ATD   += parseFloat(curr.C_ATD   || 0);   // ✅
@@ -143,7 +146,7 @@ function AddBill() {
       },
       {
         payment: 0, PWT: 0, CASH: 0, BANK: 0, DUE: 0,
-        N_P: 0, S_TDS: 0, P_ATD: 0, C_ATD: 0, Total: 0,
+        N_P: 0, D_Return: 0, S_TDS: 0, P_ATD: 0, C_ATD: 0, Total: 0,
       }
     );
 
@@ -174,6 +177,7 @@ function AddBill() {
         N_P:       data.N_P,
         npEntries: [            // ✅ new structure
           {
+            D_Return: data.D_Return,
             S_TDS: data.S_TDS,
             P_ATD: data.P_ATD,
             C_ATD: data.C_ATD,
@@ -298,6 +302,7 @@ function AddBill() {
                   <th>BANK</th>
                   <th>DUE</th>
                   <th>N/P</th>
+                  <th>D_Return</th>   {/* ✅ new column */}
                   <th>STDS</th>    {/* ✅ replaced TCS */}
                   <th>P-ATD</th>   {/* ✅ replaced TDS */}
                   <th>C-ATD</th>   {/* ✅ replaced ATD */}
@@ -363,6 +368,15 @@ function AddBill() {
                         onKeyDown={handleKeyDown}
                       />
                     </td>
+                     <td>   {/* ✅ D_Return added */}
+                      <input
+                        type="number"
+                        className="form-control"
+                        value={data.D_Return}
+                        onChange={(e) => handleChange(index, "D_Return", e.target.value)}
+                        onKeyDown={handleKeyDown}
+                      />
+                    </td>
                     <td>   {/* ✅ S_TDS replaced TCS */}
                       <input
                         type="number"
@@ -412,6 +426,7 @@ function AddBill() {
                   <td><b>{columnTotals.BANK.toFixed(2)}</b></td>
                   <td><b>{columnTotals.DUE.toFixed(2)}</b></td>
                   <td><b>{columnTotals.N_P.toFixed(2)}</b></td>
+                  <td><b>{columnTotals.D_Return.toFixed(2)}</b></td>   {/* ✅ */}
                   <td><b>{columnTotals.S_TDS.toFixed(2)}</b></td>   {/* ✅ */}
                   <td><b>{columnTotals.P_ATD.toFixed(2)}</b></td>   {/* ✅ */}
                   <td><b>{columnTotals.C_ATD.toFixed(2)}</b></td>   {/* ✅ */}

@@ -24,6 +24,7 @@ function ViewBill() {
     const [totalS_TDS, setTotalS_TDS] = useState(0);
     const [totalATD, setTotalATD] = useState(0);
     // new structure totals
+    const [totalNpD_Return, setTotalNpD_Return] = useState(0);
     const [totalNpS_TDS, setTotalNpS_TDS] = useState(0);
     const [totalNpP_ATD, setTotalNpP_ATD] = useState(0);
     const [totalNpC_ATD, setTotalNpC_ATD] = useState(0);
@@ -43,7 +44,7 @@ function ViewBill() {
     const getRowTotal = (bill) => {
         if (bill.isNewStructure) {
             const npTotal = (bill.npEntries || []).reduce(
-                (sum, e) => sum + (e.S_TDS || 0) + (e.P_ATD || 0) + (e.C_ATD || 0), 0
+                (sum, e) => sum + (e.D_Return || 0) + (e.S_TDS || 0) + (e.P_ATD || 0) + (e.C_ATD || 0), 0
             );
             return (bill.PWT || 0) + (bill.CASH || 0) + (bill.BANK || 0) +
                    (bill.DUE || 0) + (bill.N_P || 0) + npTotal;
@@ -72,7 +73,7 @@ function ViewBill() {
             // old
             let tTCS = 0, tTDS = 0, tS_TDS = 0, tATD = 0;
             // new
-            let tNpS_TDS = 0, tNpP_ATD = 0, tNpC_ATD = 0;
+            let  tNpS_TDS = 0, tNpP_ATD = 0, tNpC_ATD = 0, tNpD_Return = 0;
             let tAllTotals = 0;
 
             data.forEach(bill => {
@@ -86,6 +87,7 @@ function ViewBill() {
 
                 if (bill.isNewStructure) {
                     const e = (bill.npEntries || [])[0] || {};
+                    tNpD_Return += e.D_Return || 0;
                     tNpS_TDS += e.S_TDS || 0;
                     tNpP_ATD += e.P_ATD || 0;
                     tNpC_ATD += e.C_ATD || 0;
@@ -106,6 +108,7 @@ function ViewBill() {
             setTotalTDS(tTDS);
             setTotalS_TDS(tS_TDS);
             setTotalATD(tATD);
+            setTotalNpD_Return(tNpD_Return);
             setTotalNpS_TDS(tNpS_TDS);
             setTotalNpP_ATD(tNpP_ATD);
             setTotalNpC_ATD(tNpC_ATD);
@@ -123,7 +126,7 @@ function ViewBill() {
 
         // headers switch by structure
         if (isNewStructure) {
-            worksheet.addRow(['Sl no', 'Code', 'PartyName', 'Payment', 'PWT', 'CASH', 'BANK', 'DUE', 'N/P', 'STDS', 'P-ATD', 'C-ATD', 'Total']);
+            worksheet.addRow(['Sl no', 'Code', 'PartyName', 'Payment', 'PWT', 'CASH', 'BANK', 'DUE', 'N/P',"D-Return", 'STDS', 'P-ATD', 'C-ATD', 'Total']);
         } else {
             worksheet.addRow(['Sl no', 'Code', 'PartyName', 'Payment', 'PWT', 'CASH', 'BANK', 'DUE', 'N_P', 'TCS', 'TDS', 'S_TDS', 'ATD', 'Total']);
         }
@@ -134,7 +137,7 @@ function ViewBill() {
                 worksheet.addRow([
                     index + 1, bill.code, bill.partyName, bill.payment,
                     bill.PWT, bill.CASH, bill.BANK, bill.DUE, bill.N_P,
-                    e.S_TDS || 0, e.P_ATD || 0, e.C_ATD || 0,
+                    e.S_TDS || 0, e.P_ATD || 0, e.C_ATD || 0, e.D_Return || 0,
                     getRowTotal(bill)
                 ]);
             } else {
@@ -151,7 +154,7 @@ function ViewBill() {
         worksheet.addRow(['', '', 'N/P:', totalNP]);
 
         if (isNewStructure) {
-            worksheet.addRow(['', '', 'Total:', totalPayment, totalPWT, totalCASH, totalBANK, totalDUE, totalN_P, totalNpS_TDS, totalNpP_ATD, totalNpC_ATD, totalAllTotals]);
+            worksheet.addRow(['', '', 'Total:', totalPayment, totalPWT, totalCASH, totalBANK, totalDUE, totalN_P, totalNpD_Return, totalNpS_TDS, totalNpP_ATD, totalNpC_ATD, totalAllTotals]);
         } else {
             worksheet.addRow(['', '', 'Total:', totalPayment, totalPWT, totalCASH, totalBANK, totalDUE, totalN_P, totalTCS, totalTDS, totalS_TDS, totalATD, totalAllTotals]);
         }
@@ -177,7 +180,7 @@ function ViewBill() {
 
         // columns switch by structure
         const tableColumn = isNewStructure
-            ? ["Sl no", "Code", "Party Name", "Payment", "PWT", "CASH", "BANK", "DUE", "N/P", "STDS", "P-ATD", "C-ATD", "Total"]
+            ? ["Sl no", "Code", "Party Name", "Payment", "PWT", "CASH", "BANK", "DUE", "N/P","D-Return", "STDS", "P-ATD", "C-ATD", "Total"]
             : ["Sl no", "Code", "Party Name", "Payment", "PWT", "CASH", "BANK", "DUE", "N_P", "TCS", "TDS", "S_TDS", "ATD", "Total"];
 
         const tableRows = bills.map((bill, index) => {
@@ -185,7 +188,7 @@ function ViewBill() {
                 const e = (bill.npEntries || [])[0] || {};
                 return [index + 1, bill.code, bill.partyName, bill.payment,
                         bill.PWT, bill.CASH, bill.BANK, bill.DUE, bill.N_P,
-                        e.S_TDS || 0, e.P_ATD || 0, e.C_ATD || 0, getRowTotal(bill)];
+                        e.D_Return || 0, e.S_TDS || 0, e.P_ATD || 0, e.C_ATD || 0, getRowTotal(bill)];
             }
             return [index + 1, bill.code, bill.partyName, bill.payment,
                     bill.PWT, bill.CASH, bill.BANK, bill.DUE, bill.N_P,
@@ -195,7 +198,7 @@ function ViewBill() {
         tableRows.push(["", "", "N/P:", totalNP, "", "", "", "", "", "", "", "", "", ""]);
 
         if (isNewStructure) {
-            tableRows.push(["", "", "Total:", totalPayment, totalPWT, totalCASH, totalBANK, totalDUE, totalN_P, totalNpS_TDS, totalNpP_ATD, totalNpC_ATD, totalAllTotals]);
+            tableRows.push(["", "", "Total:", totalPayment, totalPWT, totalCASH, totalBANK, totalDUE, totalN_P, totalNpD_Return, totalNpS_TDS, totalNpP_ATD, totalNpC_ATD, totalAllTotals]);
         } else {
             tableRows.push(["", "", "Total:", totalPayment, totalPWT, totalCASH, totalBANK, totalDUE, totalN_P, totalTCS, totalTDS, totalS_TDS, totalATD, totalAllTotals]);
         }
@@ -287,6 +290,7 @@ function ViewBill() {
                                 {/* switch headers by structure */}
                                 {isNewStructure ? (
                                     <>
+                                        <th>D_Return</th>
                                         <th>STDS</th>
                                         <th>P-ATD</th>
                                         <th>C-ATD</th>
@@ -317,6 +321,7 @@ function ViewBill() {
                                     {/* switch columns by structure */}
                                     {bill.isNewStructure ? (
                                         <>
+                                            <td>{(bill.npEntries?.[0]?.D_Return) || 0}</td>
                                             <td>{(bill.npEntries?.[0]?.S_TDS) || 0}</td>
                                             <td>{(bill.npEntries?.[0]?.P_ATD) || 0}</td>
                                             <td>{(bill.npEntries?.[0]?.C_ATD) || 0}</td>
@@ -350,6 +355,7 @@ function ViewBill() {
                                 <td>{totalN_P}</td>
                                 {isNewStructure ? (
                                     <>
+                                        <td>{totalNpD_Return}</td>
                                         <td>{totalNpS_TDS}</td>
                                         <td>{totalNpP_ATD}</td>
                                         <td>{totalNpC_ATD}</td>
