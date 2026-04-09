@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import "./AddBill.css";
 
+
 function AddBill() {
   const { user, isAuthenticated } = useAuth0();
   const [formData, setFormData] = useState([]);
@@ -18,20 +19,22 @@ function AddBill() {
     BANK: 0,
     DUE: 0,
     N_P: 0,
-    TCS: 0,
-    TDS: 0,
-    S_TDS: 0,
-    ATD: 0,
+    S_TDS: 0,   // ✅ replaced TCS
+    P_ATD: 0,   // ✅ replaced TDS
+    C_ATD: 0,   // ✅ replaced ATD
     Total: 0,
   });
-  const [totalNP, setTotalNP] = useState(0); // New state variable for Total N/P input
-  const [isSubmitting, setIsSubmitting] = useState(false); // New state variable for submit button
+  const [totalNP, setTotalNP] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
 
   const backendUrl = import.meta.env.VITE_BASE_URL;
+
 
   useEffect(() => {
     fetchPartyNames();
   }, [user]);
+
 
   useEffect(() => {
     if (message) {
@@ -42,8 +45,8 @@ function AddBill() {
     }
   }, [message]);
 
+
   useEffect(() => {
-    // Initialize Bootstrap tooltip
     const tooltipTriggerList = Array.from(
       document.querySelectorAll('[data-bs-toggle="tooltip"]')
     );
@@ -52,10 +55,11 @@ function AddBill() {
     });
   }, []);
 
+
   useEffect(() => {
-    // Recalculate column totals whenever totalNP changes
     updateColumnTotals(formData);
   }, [totalNP]);
+
 
   const fetchPartyNames = async () => {
     try {
@@ -76,11 +80,14 @@ function AddBill() {
           throw new Error("No codes or party names data received");
         }
 
+
         const sortedPartyNames = partyNames;
         const sortedCodes = codes;
 
+
         setPartyNames(sortedPartyNames);
         setCodes(sortedCodes);
+
 
         const initialFormData = sortedPartyNames.map((party, index) => ({
           code: sortedCodes[index],
@@ -91,10 +98,9 @@ function AddBill() {
           BANK: "",
           DUE: "",
           N_P: "",
-          TCS: "",
-          TDS: "",
-          S_TDS: "",
-          ATD: "",
+          S_TDS: "",   // ✅ replaced TCS
+          P_ATD: "",   // ✅ replaced TDS
+          C_ATD: "",   // ✅ replaced ATD
         }));
         setFormData(initialFormData);
       }
@@ -103,12 +109,14 @@ function AddBill() {
     }
   };
 
+
   const handleChange = (index, name, value) => {
     const updatedFormData = [...formData];
     updatedFormData[index][name] = value || "0";
     setFormData(updatedFormData);
     updateColumnTotals(updatedFormData);
   };
+
 
   const getTotal = (data) => {
     const numbers = Object.entries(data)
@@ -117,41 +125,32 @@ function AddBill() {
     return numbers.reduce((acc, curr) => acc + curr, 0).toFixed(2);
   };
 
+
   const updateColumnTotals = (data) => {
     const totals = data.reduce(
       (acc, curr) => {
         acc.payment += parseFloat(curr.payment || 0);
-        acc.PWT += parseFloat(curr.PWT || 0);
-        acc.CASH += parseFloat(curr.CASH || 0);
-        acc.BANK += parseFloat(curr.BANK || 0);
-        acc.DUE += parseFloat(curr.DUE || 0);
-        acc.N_P += parseFloat(curr.N_P || 0);
-        acc.TCS += parseFloat(curr.TCS || 0);
-        acc.TDS += parseFloat(curr.TDS || 0);
-        acc.S_TDS += parseFloat(curr.S_TDS || 0);
-        acc.ATD += parseFloat(curr.ATD || 0);
-        acc.Total += parseFloat(getTotal(curr));
+        acc.PWT     += parseFloat(curr.PWT     || 0);
+        acc.CASH    += parseFloat(curr.CASH    || 0);
+        acc.BANK    += parseFloat(curr.BANK    || 0);
+        acc.DUE     += parseFloat(curr.DUE     || 0);
+        acc.N_P     += parseFloat(curr.N_P     || 0);
+        acc.S_TDS   += parseFloat(curr.S_TDS   || 0);   // ✅
+        acc.P_ATD   += parseFloat(curr.P_ATD   || 0);   // ✅
+        acc.C_ATD   += parseFloat(curr.C_ATD   || 0);   // ✅
+        acc.Total   += parseFloat(getTotal(curr));
         return acc;
       },
       {
-        payment: 0,
-        PWT: 0,
-        CASH: 0,
-        BANK: 0,
-        DUE: 0,
-        N_P: 0,
-        TCS: 0,
-        TDS: 0,
-        S_TDS: 0,
-        ATD: 0,
-        Total: 0,
+        payment: 0, PWT: 0, CASH: 0, BANK: 0, DUE: 0,
+        N_P: 0, S_TDS: 0, P_ATD: 0, C_ATD: 0, Total: 0,
       }
     );
 
-    // Add totalNP to payment column total
     totals.payment += parseFloat(totalNP || 0);
     setColumnTotals(totals);
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -160,31 +159,32 @@ function AddBill() {
       setIsError(true);
       return;
     }
-    setIsSubmitting(true); // Disable the submit button
+    setIsSubmitting(true);
     try {
       const bills = formData.map((data) => ({
-        code: data.code,
+        code:      data.code,
         startDate,
         endDate,
         partyName: data.partyName,
-        payment: data.payment,
-        PWT: data.PWT,
-        CASH: data.CASH,
-        BANK: data.BANK,
-        DUE: data.DUE,
-        N_P: data.N_P,
-        TCS: data.TCS,
-        TDS: data.TDS,
-        S_TDS: data.S_TDS,
-        ATD: data.ATD,
+        payment:   data.payment,
+        PWT:       data.PWT,
+        CASH:      data.CASH,
+        BANK:      data.BANK,
+        DUE:       data.DUE,
+        N_P:       data.N_P,
+        npEntries: [            // ✅ new structure
+          {
+            S_TDS: data.S_TDS,
+            P_ATD: data.P_ATD,
+            C_ATD: data.C_ATD,
+          },
+        ],
       }));
       const email = user.email;
       const response = await fetch(`${backendUrl}/api/bills`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ bills, totalNP, email }), // Include totalNP in the submission
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bills, totalNP, email }),  // ✅ same as old
       });
 
       if (!response.ok) {
@@ -196,9 +196,10 @@ function AddBill() {
       setMessage("Error adding bills: " + error.message);
       setIsError(true);
     } finally {
-      setIsSubmitting(false); // Re-enable the submit button
+      setIsSubmitting(false);
     }
   };
+
 
   const handleKeyDown = (e) => {
     const inputs = document.getElementsByTagName("input");
@@ -215,17 +216,18 @@ function AddBill() {
       nextIndex = currentIndex === inputs.length - 1 ? 0 : currentIndex + 1;
     } else if (e.key === "w" || e.key === "W") {
       e.preventDefault();
-      nextIndex = currentIndex < 10 ? 0 : currentIndex - 10;
+      nextIndex = currentIndex < 9 ? 0 : currentIndex - 9;  // ✅ 10→9
     } else if (e.key === "s" || e.key === "S") {
       e.preventDefault();
       nextIndex =
-        currentIndex + 10 >= inputs.length
-          ? currentIndex % 10
-          : currentIndex + 10;
+        currentIndex + 9 >= inputs.length   // ✅ 10→9
+          ? currentIndex % 9               // ✅ 10→9
+          : currentIndex + 9;              // ✅ 10→9
     }
 
     inputs[nextIndex].focus();
   };
+
 
   return (
     <>
@@ -249,8 +251,8 @@ function AddBill() {
               role="alert"
               style={{
                 position: "fixed",
-                top: "20px", // Adjust as necessary
-                right: "20px", // Position from the right side
+                top: "20px",
+                right: "20px",
                 zIndex: 1000,
                 maxWidth: "80%",
                 textAlign: "center",
@@ -296,10 +298,9 @@ function AddBill() {
                   <th>BANK</th>
                   <th>DUE</th>
                   <th>N/P</th>
-                  <th>TCS</th>
-                  <th>TDS</th>
-                  <th>S_TDS</th>
-                  <th>ATD</th>
+                  <th>STDS</th>    {/* ✅ replaced TCS */}
+                  <th>P-ATD</th>   {/* ✅ replaced TDS */}
+                  <th>C-ATD</th>   {/* ✅ replaced ATD */}
                   <th>Total</th>
                 </tr>
               </thead>
@@ -313,9 +314,7 @@ function AddBill() {
                         type="number"
                         className="form-control"
                         value={data.payment}
-                        onChange={(e) =>
-                          handleChange(index, "payment", e.target.value)
-                        }
+                        onChange={(e) => handleChange(index, "payment", e.target.value)}
                         onKeyDown={handleKeyDown}
                       />
                     </td>
@@ -324,9 +323,7 @@ function AddBill() {
                         type="number"
                         className="form-control"
                         value={data.PWT}
-                        onChange={(e) =>
-                          handleChange(index, "PWT", e.target.value)
-                        }
+                        onChange={(e) => handleChange(index, "PWT", e.target.value)}
                         onKeyDown={handleKeyDown}
                       />
                     </td>
@@ -335,9 +332,7 @@ function AddBill() {
                         type="number"
                         className="form-control"
                         value={data.CASH}
-                        onChange={(e) =>
-                          handleChange(index, "CASH", e.target.value)
-                        }
+                        onChange={(e) => handleChange(index, "CASH", e.target.value)}
                         onKeyDown={handleKeyDown}
                       />
                     </td>
@@ -346,9 +341,7 @@ function AddBill() {
                         type="number"
                         className="form-control"
                         value={data.BANK}
-                        onChange={(e) =>
-                          handleChange(index, "BANK", e.target.value)
-                        }
+                        onChange={(e) => handleChange(index, "BANK", e.target.value)}
                         onKeyDown={handleKeyDown}
                       />
                     </td>
@@ -357,9 +350,7 @@ function AddBill() {
                         type="number"
                         className="form-control"
                         value={data.DUE}
-                        onChange={(e) =>
-                          handleChange(index, "DUE", e.target.value)
-                        }
+                        onChange={(e) => handleChange(index, "DUE", e.target.value)}
                         onKeyDown={handleKeyDown}
                       />
                     </td>
@@ -368,53 +359,34 @@ function AddBill() {
                         type="number"
                         className="form-control"
                         value={data.N_P}
-                        onChange={(e) =>
-                          handleChange(index, "N_P", e.target.value)
-                        }
+                        onChange={(e) => handleChange(index, "N_P", e.target.value)}
                         onKeyDown={handleKeyDown}
                       />
                     </td>
-                    <td>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={data.TCS}
-                        onChange={(e) =>
-                          handleChange(index, "TCS", e.target.value)
-                        }
-                        onKeyDown={handleKeyDown}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={data.TDS}
-                        onChange={(e) =>
-                          handleChange(index, "TDS", e.target.value)
-                        }
-                        onKeyDown={handleKeyDown}
-                      />
-                    </td>
-                    <td>
+                    <td>   {/* ✅ S_TDS replaced TCS */}
                       <input
                         type="number"
                         className="form-control"
                         value={data.S_TDS}
-                        onChange={(e) =>
-                          handleChange(index, "S_TDS", e.target.value)
-                        }
+                        onChange={(e) => handleChange(index, "S_TDS", e.target.value)}
                         onKeyDown={handleKeyDown}
                       />
                     </td>
-                    <td>
+                    <td>   {/* ✅ P_ATD replaced TDS */}
                       <input
                         type="number"
                         className="form-control"
-                        value={data.ATD}
-                        onChange={(e) =>
-                          handleChange(index, "ATD", e.target.value)
-                        }
+                        value={data.P_ATD}
+                        onChange={(e) => handleChange(index, "P_ATD", e.target.value)}
+                        onKeyDown={handleKeyDown}
+                      />
+                    </td>
+                    <td>   {/* ✅ C_ATD replaced ATD */}
+                      <input
+                        type="number"
+                        className="form-control"
+                        value={data.C_ATD}
+                        onChange={(e) => handleChange(index, "C_ATD", e.target.value)}
                         onKeyDown={handleKeyDown}
                       />
                     </td>
@@ -422,9 +394,7 @@ function AddBill() {
                   </tr>
                 ))}
                 <tr>
-                  <td colSpan="2">
-                    <b>Total N/P:</b>
-                  </td>
+                  <td colSpan="2"><b>Total N/P:</b></td>
                   <td colSpan="1">
                     <input
                       type="number"
@@ -435,42 +405,17 @@ function AddBill() {
                   </td>
                 </tr>
                 <tr>
-                  <td colSpan="2">
-                    <b>Total:</b>
-                  </td>
-                  <td>
-                    <b>{columnTotals.payment.toFixed(2)}</b>
-                  </td>
-                  <td>
-                    <b>{columnTotals.PWT.toFixed(2)}</b>
-                  </td>
-                  <td>
-                    <b>{columnTotals.CASH.toFixed(2)}</b>
-                  </td>
-                  <td>
-                    <b>{columnTotals.BANK.toFixed(2)}</b>
-                  </td>
-                  <td>
-                    <b>{columnTotals.DUE.toFixed(2)}</b>
-                  </td>
-                  <td>
-                    <b>{columnTotals.N_P.toFixed(2)}</b>
-                  </td>
-                  <td>
-                    <b>{columnTotals.TCS.toFixed(2)}</b>
-                  </td>
-                  <td>
-                    <b>{columnTotals.TDS.toFixed(2)}</b>
-                  </td>
-                  <td>
-                    <b>{columnTotals.S_TDS.toFixed(2)}</b>
-                  </td>
-                  <td>
-                    <b>{columnTotals.ATD.toFixed(2)}</b>
-                  </td>
-                  <td>
-                    <b>{columnTotals.Total.toFixed(2)}</b>
-                  </td>
+                  <td colSpan="2"><b>Total:</b></td>
+                  <td><b>{columnTotals.payment.toFixed(2)}</b></td>
+                  <td><b>{columnTotals.PWT.toFixed(2)}</b></td>
+                  <td><b>{columnTotals.CASH.toFixed(2)}</b></td>
+                  <td><b>{columnTotals.BANK.toFixed(2)}</b></td>
+                  <td><b>{columnTotals.DUE.toFixed(2)}</b></td>
+                  <td><b>{columnTotals.N_P.toFixed(2)}</b></td>
+                  <td><b>{columnTotals.S_TDS.toFixed(2)}</b></td>   {/* ✅ */}
+                  <td><b>{columnTotals.P_ATD.toFixed(2)}</b></td>   {/* ✅ */}
+                  <td><b>{columnTotals.C_ATD.toFixed(2)}</b></td>   {/* ✅ */}
+                  <td><b>{columnTotals.Total.toFixed(2)}</b></td>
                 </tr>
               </tbody>
             </table>
@@ -486,8 +431,8 @@ function AddBill() {
                 height: "40px",
                 paddingTop: "10px",
                 position: "relative",
-                zIndex: 9999, // Force it to be on top
-                pointerEvents: "auto", // Ensure it can receive clicks
+                zIndex: 9999,
+                pointerEvents: "auto",
               }}
             >
               {isSubmitting ? "Submitting..." : "Submit"}
@@ -498,5 +443,6 @@ function AddBill() {
     </>
   );
 }
+
 
 export default AddBill;
